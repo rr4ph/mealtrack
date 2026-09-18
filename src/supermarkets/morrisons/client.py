@@ -20,10 +20,52 @@ class Morrisons:
 
         data = json.load(response)
 
-        return data
+        return self.convert_product(data)
+
+    def convert_product(self, data):
+        products = []
+
+        for group in data["productGroups"]:
+            for product in group["decoratedProducts"]:
+                products.append({
+                    "id": product["productId"],
+                    "name": product["name"],
+                    "brand": product["brand"],
+                    "pack_size": product.get("packSizeDescription"),
+                    "price": float(product["price"]["amount"]),
+                    "currency": product["price"]["currency"],
+                    "unitPrice": float(product["unitPrice"]["price"]["amount"]),
+                    "unitCurrency": product["unitPrice"]["price"]["currency"],
+                    "unitName": product["unitPrice"]["unitName"],
+                    "inCatalog": product["isInCurrentCatalog"],
+                    "promotions": [
+                        promo["description"]
+                        for promo in product.get("promotions", []) 
+                    ],
+                    "category": product["categoryPath"]
+                })
+
+        return products
 
     def get_shops(self):
         response = urlopen(self.base_url + "/api/ecomdeliverydestinations/v4/delivery-addresses?deliveryMethod=CUSTOMER_COLLECTION")
         data = json.load(response)
 
-        return data
+        return self.convert_shops(data)
+
+    def convert_shops(self, data):
+        shops = []
+
+        for shop in data:
+            shops.append({
+                "addressId": shop["addressId"],
+                "shopAddress": shop["formattedAddress"],
+                "shopName": shop["name"],
+                "coordinates": {
+                    "latitude": shop["coordinates"]["latitude"],
+                    "longitude": shop["coordinates"]["longitude"]
+                },
+                "postalCode": shop["postalCode"]
+            })
+
+        return shops
