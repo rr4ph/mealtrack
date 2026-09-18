@@ -1,5 +1,6 @@
 from urllib.request import urlopen
 import json
+from src.utils.geography import haversine
 
 class Morrisons:
 
@@ -68,4 +69,15 @@ class Morrisons:
                 "postalCode": shop["postalCode"]
             })
 
+        return shops
+
+    def get_shop_distances(self, shops, user_lat, user_lon):
+        for shop in shops:
+            shop["distance"] = round(haversine(
+                user_lat,
+                user_lon,
+                shop["coordinates"]["latitude"],
+                shop["coordinates"]["longitude"]
+            ), 1)
+        shops.sort(key=lambda shop: shop["distance"])
         return shops
