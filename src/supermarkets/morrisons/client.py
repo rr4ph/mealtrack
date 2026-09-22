@@ -1,6 +1,7 @@
 from urllib.request import urlopen
 import json
 from src.utils.geography import haversine
+from src.models.product import Product
 
 class Morrisons:
 
@@ -28,23 +29,24 @@ class Morrisons:
 
         for group in data["productGroups"]:
             for product in group["decoratedProducts"]:
-                products.append({
-                    "id": product["productId"],
-                    "name": product["name"],
-                    "brand": product["brand"],
-                    "pack_size": product.get("packSizeDescription"),
-                    "price": float(product["price"]["amount"]),
-                    "currency": product["price"]["currency"],
-                    "unitPrice": float(product["unitPrice"]["price"]["amount"]),
-                    "unitCurrency": product["unitPrice"]["price"]["currency"],
-                    "unitName": product["unitPrice"]["unitName"],
-                    "inCatalog": product["isInCurrentCatalog"],
-                    "promotions": [
+                products.append(Product(
+                    external_id = product["productId"],
+                    name = product["name"],
+                    brand = product["brand"],
+                    pack_size = product.get("packSizeDescription"),
+                    price = float(product["price"]["amount"]),
+                    currency = product["price"]["currency"],
+                    unit_price = float(product["unitPrice"]["price"]["amount"]),
+                    unit_currency = product["unitPrice"]["price"]["currency"],
+                    unit_name = product["unitPrice"]["unitName"],
+                    in_catalog = product["isInCurrentCatalog"],
+                    promotions = [
                         promo["description"]
                         for promo in product.get("promotions", []) 
                     ],
-                    "category": product["categoryPath"]
-                })
+                    category = product["categoryPath"],
+                    supermarket = "Morrisons"
+                ))
 
         return products
 
@@ -81,3 +83,9 @@ class Morrisons:
             ), 1)
         shops.sort(key=lambda shop: shop["distance"])
         return shops
+
+
+morrisons = Morrisons()
+print(morrisons.get_product("bread"))
+
+    
