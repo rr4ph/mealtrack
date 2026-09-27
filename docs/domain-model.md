@@ -31,6 +31,7 @@ class Product:
     category: list[str] | None
 
     supermarket: str
+    last_price_update_at: datetime
 
 
 class Inventory:
@@ -102,3 +103,25 @@ class Shop:
     distance: float
     distance_unit: str
     supermarket_type: str
+
+Relationships:
+
+User
+Product
+Inventory
+InventoryItem
+Meal
+Ingredient
+IngredientType
+Shop
+
+User -> Inventory   (1-to-1)
+User -> Meal        (1-to-Many)
+
+Inventory -> InventoryItem  (1-to-Many)
+Product -> InventoryItem    (1-to-Many)
+
+Meal -> Ingredient (1-to-Many)
+
+IngredientType -> Ingredient (1-to-Many)
+IngredientType -> Product (1-to-Many)

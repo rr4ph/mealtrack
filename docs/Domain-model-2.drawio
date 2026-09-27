@@ -1,0 +1,97 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="kzsVODBRmOO_TzD2Bfj5">
+    <mxGraphModel dx="777" dy="1129" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tnULKKauVN5u91IDDbAs-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=default;fillColor=default;fontColor=light-dark(#000000, #ffffff);labelBackgroundColor=none;" value="&lt;div style=&quot;text-align: start; font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; line-height: 18px; white-space: pre;&quot;&gt;&lt;div&gt;User:&lt;/div&gt;&lt;div&gt;-------------&lt;/div&gt;&lt;div&gt;id&lt;/div&gt;&lt;div&gt;username&lt;/div&gt;&lt;div&gt;password_hash&lt;/div&gt;&lt;div&gt;postcode&lt;/div&gt;&lt;div&gt;inventory&lt;/div&gt;&lt;div&gt;meals&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="160" width="130" x="150" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontColor=light-dark(#000000,#FFFFFF);labelBackgroundColor=none;" value="&lt;div style=&quot;text-align: start; font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; line-height: 18px; white-space: pre;&quot;&gt;&lt;div&gt;&lt;span style=&quot;&quot;&gt;Inventory:&lt;/span&gt;&lt;/div&gt;&lt;div&gt;-------------&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;&quot;&gt;items&lt;/span&gt;&lt;/div&gt;&lt;span style=&quot;&quot;&gt;-------------&lt;br&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;&quot;&gt;add_item()&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;&quot;&gt;update_item()&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;&quot;&gt;remove_item()&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;&quot;&gt;get_item()&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="160" width="130" x="380" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-4" edge="1" parent="1" source="tnULKKauVN5u91IDDbAs-2" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="310" y="390" as="sourcePoint" />
+            <mxPoint x="380" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;1 - 1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="290" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;Meal:&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;-------------&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;name&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;ingredient_list&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;portion&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;portion_unit&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;-------------&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;cool_meal()&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;update_meal()&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;add_ingredient()&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;remove_ingredient()&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;update_ingredient()&lt;/div&gt;" vertex="1">
+          <mxGeometry height="200" width="160" x="137.5" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;rotation=90;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;1 - Many&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="205" y="595" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-8" edge="1" parent="1" source="tnULKKauVN5u91IDDbAs-2" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="tnULKKauVN5u91IDDbAs-6" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="200" y="420" as="sourcePoint" />
+            <mxPoint x="300" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;Product:&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;------------&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;id&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;external_id&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;ingredient_type_id&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;name&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;price&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;currency&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;brand&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;pack_size&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;unit_price&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;unit_currency&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;unit_name&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;in_catalog&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;promotions&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;category&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;supermarket&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;last_price_update_at&lt;/div&gt;" vertex="1">
+          <mxGeometry height="274" width="183" x="596" y="499" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;InventoryItem:&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;--------------&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;id&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;product&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;quantity&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;quantity_unit&lt;/div&gt;" vertex="1">
+          <mxGeometry height="125" width="130" x="622.5" y="277.5" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;Ingredient:&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;------------&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;ingredient_type&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;quantity&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;quantity_unit&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="130" x="392.5" y="855" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;IngredientType:&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;---------------&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;id&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;name&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="130" x="622.5" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;Shop:&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;-----------&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;name&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;postcode&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;distance&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;distance_unit&lt;/div&gt;&lt;div style=&quot;font-family: Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; text-align: start; white-space: pre;&quot;&gt;supermarket_type&lt;/div&gt;" vertex="1">
+          <mxGeometry height="125" width="140" x="617.5" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-15" edge="1" parent="1" source="tnULKKauVN5u91IDDbAs-6" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="tnULKKauVN5u91IDDbAs-12" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="342.5" y="870" as="sourcePoint" />
+            <mxPoint x="397.5" y="910" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;1 - Many&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="304.5" y="866" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-17" edge="1" parent="1" source="tnULKKauVN5u91IDDbAs-3" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="tnULKKauVN5u91IDDbAs-10" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="520" y="340" as="sourcePoint" />
+            <mxPoint x="615" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-18" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;1 - Many&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="523" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-19" edge="1" parent="1" source="tnULKKauVN5u91IDDbAs-12" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="tnULKKauVN5u91IDDbAs-13" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="380" y="950" as="sourcePoint" />
+            <mxPoint x="475" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-20" edge="1" parent="1" source="tnULKKauVN5u91IDDbAs-9" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="tnULKKauVN5u91IDDbAs-13" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="687.5" y="800" as="sourcePoint" />
+            <mxPoint x="609.5" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-21" edge="1" parent="1" source="tnULKKauVN5u91IDDbAs-10" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="tnULKKauVN5u91IDDbAs-9" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="582.5" y="700" as="sourcePoint" />
+            <mxPoint x="582.5" y="755" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Many - 1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="530.5" y="870" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-24" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;rotation=90;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Many - 1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="675" y="798" as="geometry" />
+        </mxCell>
+        <mxCell id="tnULKKauVN5u91IDDbAs-25" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;rotation=90;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Many - 1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="675" y="436" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
