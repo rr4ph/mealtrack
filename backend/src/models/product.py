@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import datetime
 
 @dataclass
 class Product:
@@ -15,3 +16,4 @@ class Product:
     promotions: list[str]
     category: list[str] | None
     supermarket: str
+    last_price_update_at: datetime

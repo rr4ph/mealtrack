@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 import json
-from src.utils.geography import haversine
-from src.models.product import Product
+from backend.src.utils.geography import haversine
+from backend.src.models.product import Product
 
 class Morrisons:
 
@@ -45,7 +45,8 @@ class Morrisons:
                         for promo in product.get("promotions", []) 
                     ],
                     category = product["categoryPath"],
-                    supermarket = "Morrisons"
+                    supermarket = "Morrisons",
+                    last_price_update_at = product["last_price_update_at"]
                 ))
 
         return products

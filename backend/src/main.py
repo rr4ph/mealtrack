@@ -1,5 +1,5 @@
 from  fastapi import FastAPI
-from src.supermarkets.morrisons.client import Morrisons
+from backend.src.supermarkets.morrisons.client import Morrisons
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
