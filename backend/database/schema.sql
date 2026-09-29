@@ -16,7 +16,7 @@ CREATE TABLE users (
 CREATE TABLE user_inventories (
     inventory_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL UNIQUE 
-        REFERENCES users(user_id)
+        REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE ingredient_types (
@@ -46,15 +46,17 @@ CREATE TABLE inventory_items (
     product_id INT NOT NULL
         REFERENCES products(product_id),
     inventory_id INT NOT NULL
-        REFERENCES user_inventories(inventory_id),
-    quantity NUMERIC(10,3) NOT NULL,
-    quantity_unit VARCHAR(5) NOT NULL
+        REFERENCES user_inventories(inventory_id) ON DELETE CASCADE,
+    quantity NUMERIC(10,3) NOT NULL CHECK (quantity >= 0),
+    quantity_unit VARCHAR(5) NOT NULL,
+
+    UNIQUE (product_id, inventory_id)
 );
 
 CREATE TABLE meals (
     meal_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL
-        REFERENCES users(user_id),
+        REFERENCES users(user_id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     portion INT NOT NULL,
     portion_unit VARCHAR(20) NOT NULL
@@ -63,7 +65,7 @@ CREATE TABLE meals (
 CREATE TABLE ingredients (
     ingredient_id SERIAL PRIMARY KEY,
     meal_id INT NOT NULL
-        REFERENCES meals(meal_id),
+        REFERENCES meals(meal_id) ON DELETE CASCADE,
     ingredient_type_id INT NOT NULL
         REFERENCES ingredient_types(ingredient_type_id),
     quantity NUMERIC(10,3) NOT NULL,
