@@ -5,16 +5,17 @@ from backend.src.classes.inventory import Inventory
 phasher = PasswordHasher()
 
 class User:
-    def __init__(self, username, password):
+    def __init__(self, username, password, connection_choice = get_connection):
+        self.connection_choice = connection_choice
         self.user_id = None
         self.username = username
         self.password_hash = phasher.hash(password)
         self.postcode = None
-        self.inventory = Inventory()
+        self.inventory = Inventory(connection_choice)
         self.meals = []
 
     def save_user(self):
-        with get_connection() as connection:
+        with self.connection_choice() as connection:
             with connection.cursor() as cursor:
                 if self.user_id is None:
                     cursor.execute(
@@ -29,6 +30,8 @@ class User:
                         )
                     )
                     self.user_id = cursor.fetchone()[0]
+                    self.inventory.create_inventory(self.user_id, cursor)
+                    message = "User and inventory created successfully."
                 else:
                     cursor.execute(
                         """
@@ -44,10 +47,6 @@ class User:
                             self.postcode,
                             self.user_id
                         ))
-                connection.commit()
-
-user = User("skibidi_tapok", "haipbratka")
-user.save_user()
-print(user.user_id)
-user.save_user()
-print(user.user_id)
+                    message = "User updated successfully."
+            connection.commit()
+            return message
