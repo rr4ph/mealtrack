@@ -1,4 +1,4 @@
 import psycopg
 
-def get_connection():
-    return psycopg.connect("dbname=mealtrack")
+def get_connection(dbname = "mealtrack"):
+    return psycopg.connect(f"dbname={dbname}")
