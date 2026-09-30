@@ -6,6 +6,8 @@ class Product():
                  price, 
                  currency, 
                  supermarket,
+                 ingredient_type_id=None,
+                 product_id=None,
                  external_id=None, 
                  brand=None, 
                  pack_size=None, 
@@ -14,8 +16,11 @@ class Product():
                  unit_name=None,
                  in_catalog=True,
                  promotions=None,
-                 category=None
+                 category=None,
+                 last_price_update_at=None
                  ):
+        self.ingredient_type_id = ingredient_type_id
+        self.product_id = product_id
         self.external_id = external_id
         self.name = name
         self.price = price
@@ -29,4 +34,8 @@ class Product():
         self.promotions = promotions
         self.category = category
         self.supermarket = supermarket
-        self.last_price_update_at = datetime.datetime.now()
+        self.last_price_update_at = (
+            last_price_update_at
+            if last_price_update_at is not None
+            else datetime.datetime.now()
+        )
