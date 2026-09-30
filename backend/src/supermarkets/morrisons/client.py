@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 import json
 from backend.src.utils.geography import haversine
-from backend.src.models.product import Product
+from backend.src.classes.product import Product
 
 class Morrisons:
 
