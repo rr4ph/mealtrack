@@ -1,5 +1,6 @@
 from backend.database.connections import get_connection
 from psycopg.errors import UniqueViolation, CheckViolation
+from backend.src.classes.inventory_item import InventoryItem
 
 class Inventory():
     def __init__(self, connection_choice=get_connection):
@@ -154,5 +155,12 @@ class Inventory():
                 if result is None:
                     raise ValueError("Item not found in inventory.")
 
-                return result
+                return InventoryItem(
+                    inventory_item_id=result[0],
+                    product_id=result[1],
+                    inventory_id=result[2],
+                    quantity=result[3],
+                    quantity_unit=result[4],
+                    connection_choice=self.connection_choice
+                )
     
