@@ -1,4 +1,5 @@
 import datetime
+from backend.database.connections import get_connection
 
 class Product():
     def __init__(self, 
@@ -14,11 +15,13 @@ class Product():
                  unit_price=None,
                  unit_currency=None,
                  unit_name=None,
-                 in_catalog=True,
+                 in_catalog=False,
                  promotions=None,
                  category=None,
-                 last_price_update_at=None
+                 last_price_update_at=None,
+                 connection_choice=get_connection
                  ):
+        self.connection_choice = connection_choice
         self.ingredient_type_id = ingredient_type_id
         self.product_id = product_id
         self.external_id = external_id
@@ -39,3 +42,22 @@ class Product():
             if last_price_update_at is not None
             else datetime.datetime.now()
         )
+
+    def get_ingredient_type(self):
+        with self.connection_choice() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT name
+                    FROM ingredient_types
+                    WHERE ingredient_type_id = %s
+                    """,
+                    (
+                        self.ingredient_type_id,
+                    )
+                )
+                result = cursor.fetchone()
+                if result is None:
+                    raise ValueError("Product doesn't have a type.")
+
+                return result[0]
