@@ -1,4 +1,7 @@
 from math import radians, sin, cos, sqrt, atan2
+from urllib.request import urlopen
+import json
+from urllib.error import HTTPError, URLError
 
 def haversine(lat1, lon1, lat2, lon2):
 
@@ -26,13 +29,30 @@ def haversine(lat1, lon1, lat2, lon2):
 
 def get_shop_distances(shops, user_lat, user_lon):
         for shop in shops:
-            shop["distance"] = round(
+            shop.distance = round(
                 haversine(
                     user_lat,
                     user_lon,
-                    shop["coordinates"]["latitude"],
-                    shop["coordinates"]["longitude"]
+                    shop.latitude,
+                    shop.longitude
                 ), 
             2)
-        shops.sort(key=lambda shop: shop["distance"])
+        shops.sort(key=lambda shop: shop.distance)
         return shops
+
+def get_coordinates(postcode):
+    try:
+        response = urlopen(
+            "https://api.postcodes.io/postcodes/" + postcode.strip()
+        )
+
+        data = json.load(response)
+
+        return (
+            data["result"]["latitude"],
+            data["result"]["longitude"]
+        )
+    except (HTTPError, URLError, ValueError) as error:
+         raise ValueError(
+              f"Coordinates for postcode '{postcode}' not found."
+         ) from error
