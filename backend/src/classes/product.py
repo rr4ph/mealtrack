@@ -1,6 +1,9 @@
 import datetime
 from backend.database.connections import get_connection
 from backend.src.utils.enums import SupermarketType
+from backend.src.supermarkets.morrisons import Morrisons
+from backend.src.supermarkets.tesco import Tesco
+from backend.src.supermarkets.sainsburys import Sainsburys
 
 class Product():
     def __init__(self, 
@@ -135,3 +138,43 @@ class Product():
                             self.product_id
                         ))
                 return True
+
+    def refresh_from_api(self):
+        if self.external_id is None:
+            raise ValueError("Cannot refresh product without an external ID.")
+
+        if self.supermarket == SupermarketType.MORRISONS:
+            supermarket = Morrisons()
+        elif self.supermarket == SupermarketType.TESCO:
+            supermarket = Tesco()
+        elif self.supermarket == SupermarketType.SAINSBURYS:
+            supermarket = Sainsburys()
+        else:
+            raise ValueError(
+                f"Unsupported supermarket: {self.supermarket}"
+            )
+
+        products = supermarket.get_product(self.name)
+
+        for product in products:
+            if product.external_id == self.external_id:
+                self.name = product.name
+                self.price = product.price
+                self.currency = product.currency
+                self.brand = product.brand
+                self.pack_size = product.pack_size
+                self.unit_price = product.unit_price
+                self.unit_currency = product.unit_currency
+                self.unit_name = product.unit_name
+                self.in_catalog = product.in_catalog
+                self.promotions = product.promotions
+                self.category = product.category
+                self.last_price_update_at = datetime.datetime.now()
+
+                self.save_product()
+                return True
+
+        raise ValueError(
+            f"Product '{self.external_id}' could not be found at "
+            f"{self.supermarket.value}."
+        )
