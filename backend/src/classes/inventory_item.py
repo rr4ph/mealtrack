@@ -1,5 +1,6 @@
 from backend.database.connections import get_connection
 from backend.src.classes.product import Product
+from backend.src.utils.enums import Supermarket
 
 class InventoryItem():
     def __init__(self, inventory_item_id, product_id, inventory_id, quantity, quantity_unit, connection_choice=get_connection):
@@ -50,6 +51,6 @@ class InventoryItem():
                     unit_price=result[8],
                     unit_currency=result[9],
                     unit_name=result[10],
-                    supermarket=result[11],
+                    supermarket=Supermarket(result[11]),
                     last_price_update_at=result[12]
                 )

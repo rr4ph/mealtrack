@@ -1,5 +1,6 @@
 import datetime
 from backend.database.connections import get_connection
+from backend.src.utils.enums import Supermarket
 
 class Product():
     def __init__(self, 
@@ -95,7 +96,7 @@ class Product():
                             self.unit_price,
                             self.unit_currency,
                             self.unit_name,
-                            self.supermarket,
+                            self.supermarket.value,
                             self.last_price_update_at
                         ))
                     self.product_id = cursor.fetchone()[0]
@@ -129,7 +130,7 @@ class Product():
                             self.unit_price,
                             self.unit_currency,
                             self.unit_name,
-                            self.supermarket,
+                            self.supermarket.value,
                             self.last_price_update_at,
                             self.product_id
                         ))
