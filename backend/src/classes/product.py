@@ -1,6 +1,6 @@
 import datetime
 from backend.database.connections import get_connection
-from backend.src.utils.enums import Supermarket
+from backend.src.utils.enums import SupermarketType
 
 class Product():
     def __init__(self, 

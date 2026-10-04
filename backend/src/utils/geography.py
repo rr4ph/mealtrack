@@ -23,3 +23,16 @@ def haversine(lat1, lon1, lat2, lon2):
     angular_distance = 2 * atan2(sqrt(mid), sqrt(1 - mid))
 
     return R * angular_distance
+
+def get_shop_distances(shops, user_lat, user_lon):
+        for shop in shops:
+            shop["distance"] = round(
+                haversine(
+                    user_lat,
+                    user_lon,
+                    shop["coordinates"]["latitude"],
+                    shop["coordinates"]["longitude"]
+                ), 
+            2)
+        shops.sort(key=lambda shop: shop["distance"])
+        return shops
