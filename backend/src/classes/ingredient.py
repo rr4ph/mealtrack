@@ -41,7 +41,7 @@ class Ingredient():
                     with connection.cursor() as cursor:
                         cursor.execute(
                             """
-                            SELECT user_id, meal, portion, portion_unit
+                            SELECT user_id, name, portion, portion_unit
                             FROM meals
                             WHERE meal_id = %s
                             """,
@@ -55,7 +55,7 @@ class Ingredient():
         
                         return Meal(
                              user_id = result[0],
-                             meal = result[1],
+                             name = result[1],
                              portion = result[2],
                              portion_unit = result[3]
                         )
