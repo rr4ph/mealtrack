@@ -2,10 +2,13 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from backend.src.supermarkets.morrisons import Morrisons
+from backend.src.supermarkets.tesco import Tesco
+from backend.src.supermarkets.sainsburys import Sainsburys
 from backend.src.utils.enums import SupermarketType
 from backend.src.classes.product import Product
 
 router = APIRouter()
+
 
 class ProductResponse(BaseModel):
     external_id: str
@@ -36,11 +39,38 @@ class ProductCreate(BaseModel):
     unit_name: str | None = None
     supermarket: str
 
-@router.get("/products", response_model=list[ProductResponse])
-def get_products(query: str):
-    morrisons = Morrisons()
 
-    products = morrisons.get_product(query)
+@router.get("/products", response_model=list[ProductResponse])
+def get_products(query: str, supermarket: str = "all"):
+    supermarkets = {
+        "morrisons": Morrisons,
+        "tesco": Tesco,
+        "sainsburys": Sainsburys,
+    }
+
+    if supermarket == "all":
+        providers = supermarkets.items()
+    elif supermarket in supermarkets:
+        providers = [(supermarket, supermarkets[supermarket])]
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown supermarket: {supermarket}"
+        )
+
+    products = []
+
+    for name, provider_class in providers:
+        try:
+            provider = provider_class()
+            products.extend(provider.get_product(query))
+
+        except Exception as error:
+            if supermarket != "all":
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"{name} supermarket service is unavailable"
+                ) from error
 
     return [
         ProductResponse(
@@ -54,8 +84,8 @@ def get_products(query: str):
             unit_currency=product.unit_currency,
             unit_name=product.unit_name,
             in_catalog=product.in_catalog,
-            promotions=product.promotions,
-            category=product.category,
+            promotions=product.promotions or [],
+            category=product.category or [],
             supermarket=product.supermarket.value,
         )
         for product in products
@@ -79,11 +109,13 @@ def create_product(product_data: ProductCreate):
             supermarket=SupermarketType(product_data.supermarket),
             in_catalog=True
         )
-
         product.save_product()
 
     except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
 
     return ProductResponse(
         external_id=product.external_id,

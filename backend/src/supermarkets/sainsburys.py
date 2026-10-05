@@ -1,4 +1,4 @@
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 import json
 
@@ -10,7 +10,8 @@ from backend.src.utils.geography import get_coordinates
 
 
 class Sainsburys(SupermarketClient):
-
+    
+    
     product_url = (
         "https://www.sainsburys.co.uk/"
         "groceries-api/gol-services/product/v1/product"
@@ -23,9 +24,27 @@ class Sainsburys(SupermarketClient):
             "filter[keyword]": query.lower().strip()
         })
 
-        response = urlopen(
-            self.product_url + "?" + params
+        request = Request(
+            self.product_url + "?" + params,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Accept-Language": "en-GB,en;q=0.9",
+                "User-Agent": (
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+                    "Version/26.6.2 Safari/605.1.15"
+                ),
+                "Referer": "https://www.sainsburys.co.uk/gol-ui/groceries",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Site": "same-origin",
+                "Sec-Fetch-Mode": "cors",
+            }
         )
+
+        response = urlopen(request)
+
+        response = urlopen(request)
 
         data = json.load(response)
         return self.convert_product(data)
