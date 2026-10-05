@@ -27,7 +27,7 @@ CREATE TABLE ingredient_types (
 CREATE TABLE products (
     product_id SERIAL PRIMARY KEY,
     external_id VARCHAR(255) NULL UNIQUE,
-    ingredient_type_id INT NOT NULL
+    ingredient_type_id INT NULL
         REFERENCES ingredient_types(ingredient_type_id),
     name VARCHAR(50) NOT NULL,
     price NUMERIC(10,2) NOT NULL,
