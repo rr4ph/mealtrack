@@ -93,10 +93,10 @@ def test_add_item(test_user, test_product):
 
     item = test_user.inventory.get_item(test_product)
 
-    assert item[1] == test_product
-    assert item[2] == test_user.inventory.inventory_id
-    assert item[3] == 200
-    assert item[4] == "mg"
+    assert item.product_id == test_product
+    assert item.inventory_id == test_user.inventory.inventory_id
+    assert item.quantity == 200
+    assert item.quantity_unit == "mg"
 
 def test_add_duplicate_item(test_user, test_product):
     test_user.inventory.add_item(test_product, 200, "mg")
@@ -144,8 +144,8 @@ def test_update_item(test_user, test_product):
 
     item = test_user.inventory.get_item(test_product)
 
-    assert item[3] == 500
-    assert item[4] == "g"
+    assert item.quantity == 500
+    assert item.quantity_unit == "g"
 
 def test_update_missing_item(test_user, test_product):
     with pytest.raises(ValueError, match="Item not found in inventory."):
@@ -170,10 +170,10 @@ def test_get_item(test_user, test_product):
 
     result = test_user.inventory.get_item(test_product)
 
-    assert result[1] == test_product
-    assert result[2] == test_user.inventory.inventory_id
-    assert result[3] == 200
-    assert result[4] == "mg"
+    assert result.product_id == test_product
+    assert result.inventory_id == test_user.inventory.inventory_id
+    assert result.quantity == 200
+    assert result.quantity_unit == "mg"
 
 
 def test_get_missing_item(test_user, test_product):
