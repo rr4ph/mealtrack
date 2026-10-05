@@ -53,7 +53,7 @@ def category_match(product, ingredient_type):
 
 
 
-def association_score(product, ingredient_type, user_review=False):
+def association_score(product, ingredient_type):
     exact = exact_match(product, ingredient_type)
     fuzzy = fuzzy_match(product, ingredient_type)
     category = category_match(product, ingredient_type)

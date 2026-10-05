@@ -47,11 +47,18 @@ def get_coordinates(postcode):
         )
 
         data = json.load(response)
+        result = data.get("result")
+
+        if result is None:
+            raise ValueError(
+                f"Coordinates for postcode '{postcode}' not found."
+            )
 
         return (
-            data["result"]["latitude"],
-            data["result"]["longitude"]
+            result["latitude"],
+            result["longitude"]
         )
+ 
     except (HTTPError, URLError, ValueError) as error:
          raise ValueError(
               f"Coordinates for postcode '{postcode}' not found."

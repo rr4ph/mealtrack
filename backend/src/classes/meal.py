@@ -1,5 +1,4 @@
 from backend.database.connections import get_connection
-from backend.src.classes.ingredient import Ingredient
 
 class Meal():
     def __init__(self, user_id, name, portion, portion_unit, connection_choice=get_connection, meal_id=None):
@@ -11,6 +10,7 @@ class Meal():
         self.portion_unit = portion_unit
 
     def get_ingredients(self):
+        from backend.src.classes.ingredient import Ingredient
         with self.connection_choice() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -39,6 +39,7 @@ class Meal():
                 return ingredients
 
     def get_ingredient(self, ingredient_id):
+        from backend.src.classes.ingredient import Ingredient
         with self.connection_choice() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(

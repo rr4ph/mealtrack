@@ -1,9 +1,6 @@
 import datetime
 from backend.database.connections import get_connection
 from backend.src.utils.enums import SupermarketType
-from backend.src.supermarkets.morrisons import Morrisons
-from backend.src.supermarkets.tesco import Tesco
-from backend.src.supermarkets.sainsburys import Sainsburys
 
 class Product():
     def __init__(self, 
@@ -144,10 +141,13 @@ class Product():
             raise ValueError("Cannot refresh product without an external ID.")
 
         if self.supermarket == SupermarketType.MORRISONS:
+            from backend.src.supermarkets.morrisons import Morrisons
             supermarket = Morrisons()
         elif self.supermarket == SupermarketType.TESCO:
+            from backend.src.supermarkets.tesco import Tesco
             supermarket = Tesco()
         elif self.supermarket == SupermarketType.SAINSBURYS:
+            from backend.src.supermarkets.sainsburys import Sainsburys
             supermarket = Sainsburys()
         else:
             raise ValueError(
