@@ -124,3 +124,32 @@ class Meal():
                     raise ValueError("Meal not found.")
                 
                 return True       
+
+    def get_meals(self):
+        with self.connection_choice() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT meal_id, name, portion, portion_unit
+                    FROM meals
+                    WHERE user_id = %s
+                    ORDER BY name
+                    """,
+                    (
+                        self.user_id,
+                    )
+                )
+
+                results = cursor.fetchall()
+
+                return [
+                    Meal(
+                        meal_id=result[0],
+                        user_id=self.user_id,
+                        name=result[1],
+                        portion=result[2],
+                        portion_unit=result[3],
+                        connection_choice=self.connection_choice
+                    )
+                    for result in results
+                ]

@@ -3,7 +3,8 @@ from pydantic import BaseModel
 
 from backend.src.utils.ingredient_type_methods import (
     create_ingredient_type as create_ingredient_type_db,
-    merge_ingredient_types as merge_ingredient_types_db
+    merge_ingredient_types as merge_ingredient_types_db,
+    get_ingredient_types as get_ingredient_types_db
 )
 
 router = APIRouter()
@@ -16,6 +17,10 @@ class IngredientTypeCreate(BaseModel):
 class IngredientTypeMerge(BaseModel):
     kept_id: int
     deleted_id: int
+
+class IngredientTypeResponse(BaseModel):
+    ingredient_type_id: int
+    name: str
 
 
 @router.post("/ingredient-types")
@@ -45,3 +50,18 @@ def merge_ingredient_types(merge_data: IngredientTypeMerge):
         raise HTTPException(status_code=400, detail=str(error))
 
     return {"message": "Ingredient types merged successfully."}
+
+@router.get(
+    "/ingredient-types",
+    response_model=list[IngredientTypeResponse]
+)
+def get_ingredient_types():
+    ingredient_types = get_ingredient_types_db()
+
+    return [
+        IngredientTypeResponse(
+            ingredient_type_id=ingredient_type[0],
+            name=ingredient_type[1]
+        )
+        for ingredient_type in ingredient_types
+    ]

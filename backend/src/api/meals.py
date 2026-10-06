@@ -144,3 +144,25 @@ def delete_meal(meal_id: int, user_id: int):
         raise HTTPException(status_code=404, detail=str(error))
 
     return {"message": "Meal has been removed."}
+
+@router.get("/meals", response_model=list[MealResponse])
+def get_meals(user_id: int):
+    meal = Meal(
+        user_id=user_id,
+        name="",
+        portion=0,
+        portion_unit=""
+    )
+
+    meals = meal.get_meals()
+
+    return [
+        MealResponse(
+            meal_id=meal.meal_id,
+            user_id=meal.user_id,
+            name=meal.name,
+            portion=meal.portion,
+            portion_unit=meal.portion_unit
+        )
+        for meal in meals
+    ]

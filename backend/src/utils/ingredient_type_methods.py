@@ -43,3 +43,16 @@ def merge_ingredient_types(kept_id, deleted_id, connection_choice=get_connection
             )
 
             return True
+
+def get_ingredient_types(connection_choice=get_connection):
+    with connection_choice() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT ingredient_type_id, name
+                FROM ingredient_types
+                ORDER BY name
+                """
+            )
+
+            return cursor.fetchall()
