@@ -29,6 +29,8 @@ class InventoryListItemAPI(BaseModel):
     quantity_unit: str
     ingredient_type_id: int | None = None
     ingredient_type_name: str | None = None
+    price: float | None = None
+    currency: str | None = None
 
 class InventoryListAPI(BaseModel):
     inventory_id: int
@@ -49,7 +51,7 @@ def get_user_inventory(user_id: int):
             cursor.execute(
                 """
                 SELECT p.product_id, p.name, p.brand, i.quantity, i.quantity_unit,
-                       p.ingredient_type_id, t.name
+                       p.ingredient_type_id, t.name, p.price, p.currency
                 FROM inventory_items i
                 JOIN products p ON p.product_id = i.product_id
                 LEFT JOIN ingredient_types t ON t.ingredient_type_id = p.ingredient_type_id
@@ -62,7 +64,8 @@ def get_user_inventory(user_id: int):
                 InventoryListItemAPI(
                     product_id=r[0], name=r[1], brand=r[2],
                     quantity=float(r[3]), quantity_unit=r[4],
-                    ingredient_type_id=r[5], ingredient_type_name=r[6]
+                    ingredient_type_id=r[5], ingredient_type_name=r[6],
+                    price=float(r[7]) if r[7] is not None else None, currency=r[8]
                 )
                 for r in cursor.fetchall()
             ]
@@ -167,7 +170,7 @@ def convert_inventory_item_quantity(
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                "SELECT pack_size FROM products WHERE product_id = %s", (product_id,)
+                "SELECT CASE WHEN ingredient_type_id IS NOT NULL THEN pack_size END FROM products WHERE product_id = %s", (product_id,)
             )
             row = cursor.fetchone()
     if row is None:

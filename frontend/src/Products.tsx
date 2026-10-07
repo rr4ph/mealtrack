@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { type IngredientType } from "./IngredientTypeSelect"
 import CreateInventoryItem from "./CreateInventoryItem"
+import BuyProduct from "./BuyProduct"
 import { getUserId } from "./auth"
 
 const API = "http://localhost:8000/api"
@@ -49,6 +50,8 @@ function Products() {
   const [mergeError, setMergeError] = useState("")
   const [typesMessage, setTypesMessage] = useState("")
   const [addingProduct, setAddingProduct] = useState<Product | null>(null)
+  const [buyingProduct, setBuyingProduct] = useState<Product | null>(null)
+  const [buyMessage, setBuyMessage] = useState("")
 
   async function loadTypes() {
     try {
@@ -251,6 +254,7 @@ function Products() {
       </section>
 
       {error && <p className="error-message">{error}</p>}
+      {buyMessage && <p className="muted">{buyMessage}</p>}
 
       {loading ? (
         <section className="panel empty-page">
@@ -281,6 +285,13 @@ function Products() {
                 onClick={() => setAddingProduct(p)}
               >
                 Add to inventory
+              </button>
+              <button
+                type="button"
+                className="primary-button product-tile-action"
+                onClick={() => setBuyingProduct(p)}
+              >
+                Buy
               </button>
             </article>
           ))}
@@ -326,6 +337,16 @@ function Products() {
             </div>
           </div>
         </div>
+      )}
+      {buyingProduct && (
+        <BuyProduct
+          product={buyingProduct}
+          onClose={() => setBuyingProduct(null)}
+          onBought={(message) => {
+            setBuyingProduct(null)
+            setBuyMessage(message)
+          }}
+        />
       )}
       {addingProduct && inventoryId !== null && (
         <CreateInventoryItem

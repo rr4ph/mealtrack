@@ -8,6 +8,7 @@ import "./App.css"
 import Meals from "./Meals"
 import Inventory from "./Inventory"
 import Products from "./Products"
+import StatusPills from "./StatusPills"
 
 type NavItem = {
   label: string
@@ -26,6 +27,14 @@ function App() {
   const [session, setSession] = useState<Session | null>(getSession())
   const [registering, setRegistering] = useState(false)
   const [notice, setNotice] = useState("")
+  const [highContrast, setHighContrast] = useState(
+    () => localStorage.getItem("mealtrack-high-contrast") === "true"
+  )
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("high-contrast", highContrast)
+    localStorage.setItem("mealtrack-high-contrast", String(highContrast))
+  }, [highContrast])
 
   useEffect(() => {
     if (!session) return
@@ -109,6 +118,14 @@ function App() {
           </div>
 
           <div className="topbar-actions">
+            <StatusPills refreshKey={activePage} />
+            <button
+              className="contrast-toggle"
+              aria-pressed={highContrast}
+              onClick={() => setHighContrast((v) => !v)}
+            >
+              <span aria-hidden="true">◐</span> High contrast: {highContrast ? "On" : "Off"}
+            </button>
             <button
               className="avatar"
               aria-label="Account"

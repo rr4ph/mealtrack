@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import { saveSession, type Session } from "./auth"
+import { DATA_CHANGED_EVENT } from "./StatusPills"
 
 const API = "http://localhost:8000/api"
 
@@ -27,6 +28,78 @@ function Account({ session, onLogout, onSessionChange }: AccountProps) {
   const [passwordMessage, setPasswordMessage] = useState("")
   const [passwordError, setPasswordError] = useState("")
   const [savingPassword, setSavingPassword] = useState(false)
+
+  const [calorieGoal, setCalorieGoal] = useState("")
+  const [spendingLimit, setSpendingLimit] = useState("")
+  const [goalsMessage, setGoalsMessage] = useState("")
+  const [goalsError, setGoalsError] = useState("")
+  const [savingGoals, setSavingGoals] = useState(false)
+
+  useEffect(() => {
+    fetch(`${API}/goals`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => {
+        setCalorieGoal(d.daily_calorie_goal?.toString() ?? "")
+        setSpendingLimit(d.spending_limit?.toString() ?? "")
+      })
+      .catch(() => setGoalsError("Could not load goals."))
+  }, [])
+
+  async function saveGoals(event: FormEvent) {
+    event.preventDefault()
+    setGoalsMessage("")
+    setGoalsError("")
+    const kcal = calorieGoal.trim() === "" ? null : Number(calorieGoal)
+    const limit = spendingLimit.trim() === "" ? null : Number(spendingLimit)
+    if (kcal !== null && (!Number.isInteger(kcal) || kcal < 500 || kcal > 10000)) {
+      setGoalsError("Calorie goal must be a whole number between 500 and 10,000.")
+      return
+    }
+    if (limit !== null && (!Number.isFinite(limit) || limit < 0 || limit > 100000)) {
+      setGoalsError("Spending limit must be zero or more.")
+      return
+    }
+    setSavingGoals(true)
+    try {
+      const response = await fetch(`${API}/goals`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ daily_calorie_goal: kcal, spending_limit: limit }),
+      })
+      if (!response.ok) throw new Error(await errorFrom(response, "Could not save goals."))
+      setGoalsMessage("Goals saved.")
+      window.dispatchEvent(new Event(DATA_CHANGED_EVENT))
+    } catch (err) {
+      setGoalsError(err instanceof Error ? err.message : "Could not save goals.")
+    } finally {
+      setSavingGoals(false)
+    }
+  }
+
+  const [confirmReset, setConfirmReset] = useState<"limit" | "calories" | null>(null)
+  const [resetting, setResetting] = useState(false)
+  const [resetMessage, setResetMessage] = useState("")
+  const [resetError, setResetError] = useState("")
+
+  async function runReset() {
+    if (!confirmReset) return
+    setResetting(true)
+    setResetMessage("")
+    setResetError("")
+    try {
+      const isLimit = confirmReset === "limit"
+      const response = await fetch(`${API}${isLimit ? "/goals/spending-limit" : "/consumptions/today"}`, { method: "DELETE" })
+      if (!response.ok) throw new Error(await errorFrom(response, "Could not reset."))
+      if (isLimit) setSpendingLimit("")
+      setResetMessage(isLimit ? "Spending budget reset. Set a new limit to start from £0 spent." : "Today's calorie intake reset to 0.")
+      window.dispatchEvent(new Event(DATA_CHANGED_EVENT))
+    } catch (err) {
+      setResetError(err instanceof Error ? err.message : "Could not reset.")
+    } finally {
+      setResetting(false)
+      setConfirmReset(null)
+    }
+  }
 
   async function saveProfile(event: FormEvent) {
     event.preventDefault()
@@ -119,6 +192,57 @@ function Account({ session, onLogout, onSessionChange }: AccountProps) {
           {savingProfile ? "Saving..." : "Save changes"}
         </button>
       </form>
+
+      <form className="panel account-panel" onSubmit={saveGoals}>
+        <p className="eyebrow">GOALS</p>
+        <div className="form-group">
+          <label>Daily calorie goal (kcal)</label>
+          <input type="number" min="500" max="10000" step="1" placeholder="e.g. 2500" value={calorieGoal} onChange={(e) => setCalorieGoal(e.target.value)} disabled={savingGoals} />
+        </div>
+        <div className="form-group">
+          <label>Spending limit (£)</label>
+          <input type="number" min="0" step="0.01" placeholder="e.g. 100" value={spendingLimit} onChange={(e) => setSpendingLimit(e.target.value)} disabled={savingGoals} />
+        </div>
+        {goalsError && <p className="error-message">{goalsError}</p>}
+        {goalsMessage && <p className="muted">{goalsMessage}</p>}
+        <button type="submit" className="primary-button" disabled={savingGoals}>
+          {savingGoals ? "Saving..." : "Save goals"}
+        </button>
+      </form>
+
+      <section className="panel account-panel">
+        <p className="eyebrow">SAFETY / RESET</p>
+        <p className="muted">{spendingLimit === "" ? "No spending limit is currently configured." : `Current spending limit: £${spendingLimit}`}</p>
+        {resetError && <p className="error-message">{resetError}</p>}
+        {resetMessage && <p className="muted">{resetMessage}</p>}
+        <div>
+          <button type="button" className="danger-button" onClick={() => setConfirmReset("limit")} disabled={spendingLimit === ""}>Reset spending limit</button>{" "}
+          <button type="button" className="danger-button" onClick={() => setConfirmReset("calories")}>Reset today's calorie intake</button>
+        </div>
+      </section>
+
+      {confirmReset && (
+        <div className="modal-backdrop" onMouseDown={() => !resetting && setConfirmReset(null)}>
+          <div className="modal confirmation-modal" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{confirmReset === "limit" ? "Reset spending budget?" : "Reset today's calorie intake?"}</h2>
+            </div>
+            <div className="modal-body">
+              <p className="muted">
+                {confirmReset === "limit"
+                  ? "This will start a new spending budget from now. Previous purchases will remain in your history."
+                  : "This will remove today's logged meals and reset today's calorie total to zero. Previous days will remain unchanged."}
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="secondary-button" onClick={() => setConfirmReset(null)} disabled={resetting}>Cancel</button>
+              <button type="button" className="danger-button" onClick={runReset} disabled={resetting}>
+                {confirmReset === "limit" ? "Reset budget" : "Reset today's intake"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form className="panel account-panel" onSubmit={changePassword}>
         <p className="eyebrow">PASSWORD</p>

@@ -1,5 +1,6 @@
 import { getUserId } from "./auth"
 import { useEffect, useState } from "react"
+import IngredientTypeSelect from "./IngredientTypeSelect"
 
 type Meal = {
   meal_id: number
@@ -45,6 +46,12 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+
+  async function loadIngredientTypes() {
+    const response = await fetch("http://localhost:8000/api/ingredient-types")
+    if (!response.ok) throw new Error("Could not reload ingredient types.")
+    setIngredientTypes(await response.json())
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -103,7 +110,29 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
     )
   }
 
-  function removeIngredient(index: number) {
+  async function removeIngredient(index: number) {
+    const target = ingredients[index]
+
+    if (target.ingredient_id) {
+      setError("")
+      setSaving(true)
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/meals/${meal.meal_id}/ingredients/${target.ingredient_id}`,
+          { method: "DELETE" }
+        )
+        if (!response.ok) throw new Error()
+        setOriginalIngredients((current) =>
+          current.filter((item) => item.ingredient_id !== target.ingredient_id)
+        )
+      } catch {
+        setError("Could not remove ingredient.")
+        setSaving(false)
+        return
+      }
+      setSaving(false)
+    }
+
     setIngredients((current) =>
       current.filter((_, ingredientIndex) => ingredientIndex !== index)
     )
@@ -242,20 +271,22 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
             <div className="ingredient-editor">
               {ingredients.map((ingredient, index) => (
                 <div className="ingredient-row" key={ingredient.ingredient_id ?? `new-${index}`}>
-                  <select value={ingredient.ingredient_type_id} onChange={(event) => updateIngredient(index, "ingredient_type_id", event.target.value)} disabled={saving}>
-                    <option value="">Select ingredient</option>
-                    {ingredientTypes.map((type) => (
-                      <option key={type.ingredient_type_id} value={type.ingredient_type_id}>{type.name}</option>
-                    ))}
-                  </select>
+                  <IngredientTypeSelect
+                    types={ingredientTypes}
+                    value={ingredient.ingredient_type_id}
+                    onChange={(value) => updateIngredient(index, "ingredient_type_id", value)}
+                    reloadTypes={loadIngredientTypes}
+                    disabled={saving}
+                  />
                   <input type="number" min="0" step="any" placeholder="Quantity" value={ingredient.quantity} onChange={(event) => updateIngredient(index, "quantity", event.target.value)} disabled={saving} />
                   <select value={ingredient.quantity_unit} onChange={(event) => updateIngredient(index, "quantity_unit", event.target.value)} disabled={saving}>
+                    <option value="unit">unit</option>
                     <option value="g">g</option>
                     <option value="kg">kg</option>
                     <option value="ml">ml</option>
                     <option value="l">l</option>
                   </select>
-                  <button className="ingredient-remove" onClick={() => removeIngredient(index)} type="button" aria-label="Remove ingredient" disabled={saving}>×</button>
+                  <button className="ingredient-remove ingredient-remove-text" onClick={() => removeIngredient(index)} type="button" aria-label="Remove ingredient" disabled={saving}>Remove</button>
                 </div>
               ))}
               {ingredients.length === 0 && <div className="ingredient-empty">No ingredients added yet.</div>}

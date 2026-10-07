@@ -1,5 +1,6 @@
 from math import radians, sin, cos, sqrt, atan2
 from urllib.request import urlopen
+from urllib.parse import quote
 import json
 from urllib.error import HTTPError, URLError
 
@@ -43,7 +44,7 @@ def get_shop_distances(shops, user_lat, user_lon):
 def get_coordinates(postcode):
     try:
         response = urlopen(
-            "https://api.postcodes.io/postcodes/" + postcode.strip()
+            "https://api.postcodes.io/postcodes/" + quote(postcode.strip())
         )
 
         data = json.load(response)

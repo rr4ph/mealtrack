@@ -56,14 +56,16 @@ def test_convert_product_without_optional_fields():
 def test_get_product_normalises_query(monkeypatch):
     captured = {}
 
-    def fake_urlopen(url):
-        captured["url"] = url
+    def fake_urlopen(request):
+        captured["url"] = request.full_url
+        captured["calls"] = captured.get("calls", 0) + 1
         return BytesIO(b'{"products": []}')
 
     monkeypatch.setattr(sainsburys, "urlopen", fake_urlopen)
 
     assert sainsburys.Sainsburys().get_product("  TOMATOES  ") == []
-    assert "tomatoes" in captured["url"]
+    assert "filter%5Bkeyword%5D=tomatoes" in captured["url"]
+    assert captured["calls"] == 1
 
 
 def test_convert_shops():

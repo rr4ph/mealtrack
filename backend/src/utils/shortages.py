@@ -24,7 +24,8 @@ def parse_pack_size(pack_size):
     if unit.startswith(("litre", "liter")):
         unit = "l"
     base, factor = _UNITS[unit]
-    return base, int(count or 1) * float(amount) * factor
+    total = int(count or 1) * float(amount) * factor
+    return (base, total) if total > 0 else None
 
 
 def normalise_unit(unit):

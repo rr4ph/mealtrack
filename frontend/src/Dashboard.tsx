@@ -1,5 +1,7 @@
 import { getUserId } from "./auth"
 import { useEffect, useState } from "react"
+import Shops from "./Shops"
+import AnalyticsCard from "./AnalyticsCard"
 
 type Shortage = {
   meal_id: number
@@ -55,7 +57,7 @@ function Dashboard({ onNavigate }: DashboardProps) {
       <section className="welcome-row">
         <div>
           <p className="eyebrow">YOUR FOOD AT A GLANCE</p>
-          <h2>Good evening.</h2>
+          <h2>Welcome back.</h2>
           <p className="muted">
             Keep your meals, inventory and shopping in one place.
           </p>
@@ -81,6 +83,10 @@ function Dashboard({ onNavigate }: DashboardProps) {
           </div>
         </button>
 
+      </section>
+
+      <section className="analytics-section">
+        <AnalyticsCard />
       </section>
 
       <section className="dashboard-grid">
@@ -156,6 +162,10 @@ function Dashboard({ onNavigate }: DashboardProps) {
             </ul>
           )}
         </div>
+      </section>
+
+      <section className="shops-section">
+        <Shops />
       </section>
     </div>
   )

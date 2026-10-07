@@ -1,6 +1,7 @@
 import { getUserId } from "./auth"
 import { useEffect, useState } from "react"
 import EditMeal from "./EditMeal"
+import MealCalories from "./MealCalories"
 
 type Meal = {
   meal_id: number
@@ -221,6 +222,8 @@ function MealDetails({
           </div>
         )}
       </section>
+
+      <MealCalories mealId={meal.meal_id} mealName={meal.name} />
 
       {showEditMeal && (
         <EditMeal

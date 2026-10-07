@@ -44,8 +44,6 @@ class Sainsburys(SupermarketClient):
 
         response = urlopen(request)
 
-        response = urlopen(request)
-
         data = json.load(response)
         return self.convert_product(data)
 

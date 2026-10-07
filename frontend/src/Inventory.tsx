@@ -1,6 +1,7 @@
 import { getUserId } from "./auth"
 import { useEffect, useState } from "react"
 import CreateInventoryItem from "./CreateInventoryItem"
+import BuyProduct from "./BuyProduct"
 
 type InventoryItem = {
   product_id: number
@@ -9,6 +10,8 @@ type InventoryItem = {
   ingredient_type_name?: string | null
   quantity: number
   quantity_unit: string
+  price: number | null
+  currency: string | null
 }
 
 type InventoryData = {
@@ -27,6 +30,8 @@ function Inventory() {
   const [editQuantity, setEditQuantity] = useState("")
   const [editUnit, setEditUnit] = useState("unit")
   const [saving, setSaving] = useState(false)
+  const [buyingItem, setBuyingItem] = useState<InventoryItem | null>(null)
+  const [buyMessage, setBuyMessage] = useState("")
 
   async function loadInventory() {
     setLoading(true)
@@ -196,6 +201,7 @@ function Inventory() {
         </section>
 
         {error && <p className="muted">{error}</p>}
+        {buyMessage && <p className="muted">{buyMessage}</p>}
 
         {data.items.length === 0 ? (
           <section className="panel empty-page">
@@ -268,20 +274,19 @@ function Inventory() {
                   >
                     +
                   </button>
-                  <button
-                    className="secondary-button"
-                    onClick={() => startEdit(item)}
-                    aria-label={`Edit ${item.name}`}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="secondary-button"
-                    onClick={() => removeItem(item)}
-                    aria-label={`Remove ${item.name}`}
-                  >
-                    ✕
-                  </button>
+                  <div className="inventory-actions">
+                    <button className="link-button" onClick={() => startEdit(item)} aria-label={`Edit ${item.name}`}>
+                      Edit
+                    </button>
+                    {item.price !== null && (
+                      <button className="link-button" onClick={() => setBuyingItem(item)} aria-label={`Buy more ${item.name}`}>
+                        Buy more
+                      </button>
+                    )}
+                    <button className="link-button danger" onClick={() => removeItem(item)} aria-label={`Remove ${item.name}`}>
+                      Remove
+                    </button>
+                  </div>
                 </div>
                 )}
               </div>
@@ -289,6 +294,23 @@ function Inventory() {
           </section>
         )}
       </div>
+
+      {buyingItem && buyingItem.price !== null && (
+        <BuyProduct
+          product={{
+            product_id: buyingItem.product_id,
+            name: buyingItem.name,
+            price: buyingItem.price,
+            currency: buyingItem.currency ?? "GBP",
+          }}
+          onClose={() => setBuyingItem(null)}
+          onBought={(message) => {
+            setBuyingItem(null)
+            setBuyMessage(message)
+            loadInventory()
+          }}
+        />
+      )}
 
       {showCreateItem && (
         <CreateInventoryItem

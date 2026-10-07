@@ -1,5 +1,6 @@
 import { useState } from "react"
 
+const NEW_OPTION = "__new__"
 const API = "http://localhost:8000/api"
 
 export type IngredientType = {
@@ -56,22 +57,25 @@ function IngredientTypeSelect({ types, value, onChange, reloadTypes, placeholder
   return (
     <div className="type-select">
       <div className="type-select-row">
-        <select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
+        <select
+          value={value}
+          onChange={(e) => {
+            if (e.target.value === NEW_OPTION) {
+              setCreating(true)
+              return
+            }
+            onChange(e.target.value)
+          }}
+          disabled={disabled}
+        >
           <option value="">{placeholder}</option>
           {types.map((type) => (
             <option key={type.ingredient_type_id} value={type.ingredient_type_id}>
               {type.name}
             </option>
           ))}
+          <option value={NEW_OPTION}>+ Create new ingredient type</option>
         </select>
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() => setCreating(!creating)}
-          disabled={disabled}
-        >
-          Create ingredient type
-        </button>
       </div>
       {creating && (
         <div className="type-select-row">

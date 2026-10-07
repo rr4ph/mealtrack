@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -9,6 +10,7 @@ from backend.src.classes.product import Product
 from backend.src.utils.auth import current_user_id
 from fastapi import Depends
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -76,6 +78,7 @@ def get_products(query: str, supermarket: str = "all"):
             products.extend(provider.get_product(query))
 
         except Exception as error:
+            logger.warning("%s products unavailable: %s: %s", name, type(error).__name__, error)
             if supermarket != "all":
                 raise HTTPException(
                     status_code=502,

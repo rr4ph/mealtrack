@@ -1,93 +1,41 @@
+import datetime
 import os
+import time
 import requests
 from backend.src.classes.product import Product
 from backend.src.classes.shop import Shop
 from backend.src.supermarkets.client import SupermarketClient
 from backend.src.utils.enums import SupermarketType
+from backend.src.utils.geography import get_coordinates
 
 
 class Tesco(SupermarketClient):
 
-    base_url = "https://xapi.tesco.com/"
-    store_locator_url = "https://www.tesco.com/store-locator/searchapi"
-
-    search_query = """
-        query Search(
-            $query: String!,
-            $page: Int = 1,
-            $sortBy: String,
-            $journey: SearchJourneyType,
-            $primarySearchMode: SearchModeType
-        ) {
-            search(
-                query: $query
-                journey: $journey
-                mode: $primarySearchMode
-                page: $page
-                sortBy: $sortBy
-            ) {
-                results {
-                    node {
-                        __typename
-                        ... on ProductType {
-                            id
-                            title
-                            brandName
-                            price {
-                                actual
-                                unitPrice
-                                unitOfMeasure
-                            }
-                            promotions {
-                                description
-                            }
-                            departmentName
-                        }
-                    }
-                }
-            }
-        }
-    """
+    base_url = "https://api.reefapi.com"
+    search_path = "/tesco/v1/search"
+    overpass_urls = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+    ]
+    shop_radius_m = 15000
+    overpass_attempts = 4
+    shops_cache_seconds = 24 * 60 * 60
+    _shops_cache = {}
 
     def get_product(self, query):
-        payload = [{
-            "operationName": "Search",
-            "variables": {
-                "page": 1,
-                "query": query,
-                "sortBy": "relevance",
-                "journey": "ONLINE",
-                "primarySearchMode": "DEFAULT"
-            },
-            "extensions": {
-                "mfeName": "mfe-plp"
-            },
-            "query": self.search_query
-        }]
-
-        headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Accept-Language": "en-GB",
-            "Origin": "https://www.tesco.com",
-            "Referer": (
-                "https://www.tesco.com/shop/en-GB/search"
-                f"?query={query}&inputType=free+text"
-            ),
-            "User-Agent": (
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                "AppleWebKit/605.1.15 (KHTML, like Gecko) "
-                "Version/26.6.2 Safari/605.1.15"
-            ),
-            "x-apikey": os.environ["TESCO_API_KEY"],
-            "region": "UK",
-            "language": "en-GB"
-        }
+        api_key = os.environ.get("REEF_API_KEY")
+        if not api_key:
+            raise RuntimeError("REEF_API_KEY is not set")
 
         response = requests.post(
-            self.base_url,
-            headers=headers,
-            json=payload
+            self.base_url + self.search_path,
+            headers={
+                "x-api-key": api_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            json={"query": query, "country": "uk"},
+            timeout=30
         )
 
         response.raise_for_status()
@@ -95,76 +43,104 @@ class Tesco(SupermarketClient):
         return self.convert_product(response.json())
 
     def convert_product(self, data):
+        items = (data.get("data") or {}).get("results") or []
+
         products = []
 
-        for result in data[0]["data"]["search"]["results"]:
-            product = result["node"]
-
-            if product["__typename"] != "ProductType":
+        for item in items:
+            external_id = item.get("product_id")
+            if external_id is None or item.get("price") is None:
                 continue
 
+            currency = item.get("currency") or "GBP"
             products.append(
                 Product(
-                    external_id=product["id"],
-                    name=product["title"],
-                    brand=product.get("brandName"),
-                    price=product["price"]["actual"],
-                    currency="GBP",
-                    unit_price=product["price"]["unitPrice"],
-                    unit_currency="GBP",
-                    unit_name=product["price"]["unitOfMeasure"],
-                    promotions=[
-                        promotion["description"]
-                        for promotion in product.get("promotions", [])
-                    ],
-                    category=product.get("departmentName"),
-                    supermarket=SupermarketType.TESCO
+                    external_id=str(external_id),
+                    name=item["title"],
+                    brand=item.get("brand"),
+                    price=item["price"],
+                    currency=currency,
+                    unit_price=item.get("unit_price"),
+                    unit_currency=currency,
+                    unit_name=item.get("unit_of_measure"),
+                    category=item.get("breadcrumb"),
+                    supermarket=SupermarketType.TESCO,
+                    last_price_update_at=datetime.datetime.now()
                 )
             )
 
         return products
 
     def get_shops(self, postcode):
-        response = requests.get(
-            self.store_locator_url,
-            params={
-                "q": postcode,
-                "qp": postcode,
-                "l": "en"
-            }
+        latitude, longitude = get_coordinates(postcode)
+        cache_key = (round(latitude, 3), round(longitude, 3))
+        cached = self._shops_cache.get(cache_key)
+        if cached and time.time() - cached[0] < self.shops_cache_seconds:
+            return self.convert_shops(cached[1])
+
+        query = (
+            "[out:json][timeout:25];"
+            '(nwr["brand:wikidata"="Q487494"]["shop"~"^(supermarket|convenience)$"]'
+            f"(around:{self.shop_radius_m},{latitude},{longitude}););"
+            "out center tags;"
         )
 
-        response.raise_for_status()
+        last_error = None
+        response = None
+        for url in self.overpass_urls * self.overpass_attempts:
+            try:
+                response = requests.post(
+                    url,
+                    data={"data": query},
+                    headers={
+                        "User-Agent": "Mealtrack/0.1 (personal project)",
+                        "Accept": "application/json"
+                    },
+                    timeout=30
+                )
+                response.raise_for_status()
+                break
+            except requests.RequestException as error:
+                last_error = error
+        else:
+            raise last_error
 
-        return self.convert_shops(response.json())
+        data = response.json()
+        self._shops_cache[cache_key] = (time.time(), data)
+
+        return self.convert_shops(data)
 
     def convert_shops(self, data):
         shops = []
 
-        for shop in data:
-            profile = shop["profile"]
-            address = profile["address"]
+        for element in data.get("elements", []):
+            tags = element.get("tags", {})
+            point = element if "lat" in element else element.get("center", {})
+
+            if "lat" not in point or "lon" not in point:
+                continue
 
             shop_address = ", ".join(
-                part
-                for part in [
-                    address["line1"],
-                    address["line2"],
-                    address["line3"],
-                    address["city"]
+                tags[key]
+                for key in [
+                    "addr:housenumber", "addr:street",
+                    "addr:suburb", "addr:city"
                 ]
-                if part
+                if tags.get(key)
             )
+            if tags.get("addr:housenumber") and tags.get("addr:street"):
+                shop_address = shop_address.replace(
+                    f"{tags['addr:housenumber']}, ", f"{tags['addr:housenumber']} ", 1
+                )
 
             shops.append(
                 Shop(
-                    address_id=profile["meta"]["id"],
+                    address_id=f"{element['type']}/{element['id']}",
                     shop_address=shop_address,
-                    shop_name=profile["name"],
-                    latitude=profile["yextRoutableCoordinate"]["lat"],
-                    longitude=profile["yextRoutableCoordinate"]["long"],
-                    postal_code=address["postalCode"],
-                    distance=shop["distance"]["distanceKilometers"]
+                    shop_name=tags.get("name", "Tesco"),
+                    latitude=point["lat"],
+                    longitude=point["lon"],
+                    postal_code=tags.get("addr:postcode", "")
                 )
             )
 

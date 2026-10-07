@@ -335,6 +335,7 @@ function CreateMeal({
                         )
                       }
                     >
+                      <option value="unit">unit</option>
                       <option value="g">g</option>
                       <option value="kg">kg</option>
                       <option value="ml">ml</option>
