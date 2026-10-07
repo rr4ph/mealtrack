@@ -26,11 +26,14 @@ class IngredientTypeResponse(BaseModel):
 @router.post("/ingredient-types")
 def create_ingredient_type(type_data: IngredientTypeCreate):
     try:
-        create_ingredient_type_db(type_data.name)
+        ingredient_type_id = create_ingredient_type_db(type_data.name)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error))
 
-    return {"message": "Ingredient type created successfully."}
+    return {
+        "message": "Ingredient type created successfully.",
+        "ingredient_type_id": ingredient_type_id
+    }
 
 
 @router.post("/ingredient-types/merge")

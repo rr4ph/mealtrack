@@ -7,11 +7,13 @@ def create_ingredient_type(name, connection_choice=get_connection):
                 """
                 INSERT INTO ingredient_types(name)
                 VALUES (%s) 
+                RETURNING ingredient_type_id
                 """,
                 (
                     name,
                 )
             )
+            return cursor.fetchone()[0]
 
 def merge_ingredient_types(kept_id, deleted_id, connection_choice=get_connection):
     with connection_choice() as connection:

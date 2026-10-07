@@ -29,10 +29,10 @@ CREATE TABLE products (
     external_id VARCHAR(255) NULL UNIQUE,
     ingredient_type_id INT NULL
         REFERENCES ingredient_types(ingredient_type_id),
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     price NUMERIC(10,2) NOT NULL,
     currency CHAR(3) NOT NULL,
-    brand VARCHAR(50) NULL,
+    brand VARCHAR(255) NULL,
     pack_size VARCHAR(50) NULL,
     unit_price NUMERIC(10,2) NULL,
     unit_currency CHAR(3) NULL,

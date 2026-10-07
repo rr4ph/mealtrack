@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from backend.src.classes.meal import Meal
+
+from backend.src.utils.auth import current_user_id, require_meal_owner, require_query_user
 
 router = APIRouter()
 
@@ -30,7 +32,9 @@ class IngredientResponse(BaseModel):
 
 
 @router.post("/meals", response_model=MealResponse)
-def create_meal(meal_data: MealCreate):
+def create_meal(meal_data: MealCreate, auth_id: int = Depends(current_user_id)):
+    if meal_data.user_id != auth_id:
+        raise HTTPException(status_code=403, detail="Forbidden.")
     meal = Meal(
         user_id=meal_data.user_id,
         name=meal_data.name,
@@ -49,8 +53,10 @@ def create_meal(meal_data: MealCreate):
     )
 
 
-@router.patch("/meals/{meal_id}", response_model=MealResponse)
-def update_meal(meal_id: int, meal_data: MealCreate):
+@router.patch("/meals/{meal_id}", dependencies=[Depends(require_meal_owner)], response_model=MealResponse)
+def update_meal(meal_id: int, meal_data: MealCreate, auth_id: int = Depends(current_user_id)):
+    if meal_data.user_id != auth_id:
+        raise HTTPException(status_code=403, detail="Forbidden.")
     meal = Meal(
         user_id=meal_data.user_id,
         name=meal_data.name,
@@ -71,7 +77,7 @@ def update_meal(meal_id: int, meal_data: MealCreate):
 
 
 @router.get(
-    "/meals/{meal_id}/ingredients",
+    "/meals/{meal_id}/ingredients", dependencies=[Depends(require_meal_owner), Depends(require_query_user)],
     response_model=list[IngredientResponse]
 )
 def get_ingredients(meal_id: int, user_id: int):
@@ -98,7 +104,7 @@ def get_ingredients(meal_id: int, user_id: int):
 
 
 @router.get(
-    "/meals/{meal_id}/ingredients/{ingredient_id}",
+    "/meals/{meal_id}/ingredients/{ingredient_id}", dependencies=[Depends(require_meal_owner), Depends(require_query_user)],
     response_model=IngredientResponse
 )
 def get_ingredient(
@@ -128,7 +134,7 @@ def get_ingredient(
     )
 
 
-@router.delete("/meals/{meal_id}")
+@router.delete("/meals/{meal_id}", dependencies=[Depends(require_meal_owner), Depends(require_query_user)])
 def delete_meal(meal_id: int, user_id: int):
     meal = Meal(
         user_id=user_id,
@@ -145,7 +151,7 @@ def delete_meal(meal_id: int, user_id: int):
 
     return {"message": "Meal has been removed."}
 
-@router.get("/meals", response_model=list[MealResponse])
+@router.get("/meals", dependencies=[Depends(require_query_user)], response_model=list[MealResponse])
 def get_meals(user_id: int):
     meal = Meal(
         user_id=user_id,

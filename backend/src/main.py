@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.src.api.users import router as users_router
+from backend.src.api.auth import router as auth_router
 from backend.src.api.products import router as products_router
 from backend.src.api.inventory import router as inventory_router
 from backend.src.api.meals import router as meals_router
 from backend.src.api.ingredients import router as ingredients_router
 from backend.src.api.ingredient_types import router as ingredient_types_router
+from backend.src.api.shortages import router as shortages_router
 
 app = FastAPI()
 
@@ -18,8 +20,10 @@ app.add_middleware(
 )
 
 app.include_router(users_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 app.include_router(products_router, prefix="/api")
 app.include_router(inventory_router, prefix="/api")
 app.include_router(meals_router, prefix="/api")
 app.include_router(ingredients_router, prefix="/api")
 app.include_router(ingredient_types_router, prefix="/api")
+app.include_router(shortages_router, prefix="/api")

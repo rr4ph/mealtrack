@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from backend.src.classes.ingredient import Ingredient
+
+from backend.src.utils.auth import require_meal_owner
 
 router = APIRouter()
 
@@ -25,7 +27,7 @@ class QuantityUpdateAPI(BaseModel):
 
 
 @router.post(
-    "/meals/{meal_id}/ingredients",
+    "/meals/{meal_id}/ingredients", dependencies=[Depends(require_meal_owner)],
     response_model=IngredientResponse
 )
 def create_ingredient(meal_id: int, ingredient_data: IngredientCreate):
@@ -48,7 +50,7 @@ def create_ingredient(meal_id: int, ingredient_data: IngredientCreate):
 
 
 @router.patch(
-    "/meals/{meal_id}/ingredients/{ingredient_id}",
+    "/meals/{meal_id}/ingredients/{ingredient_id}", dependencies=[Depends(require_meal_owner)],
     response_model=IngredientResponse
 )
 def update_ingredient(
@@ -76,7 +78,7 @@ def update_ingredient(
 
 
 @router.post(
-    "/meals/{meal_id}/ingredients/{ingredient_id}/increase"
+    "/meals/{meal_id}/ingredients/{ingredient_id}/increase", dependencies=[Depends(require_meal_owner)]
 )
 def increase_quantity(
     meal_id: int,
@@ -100,7 +102,7 @@ def increase_quantity(
 
 
 @router.post(
-    "/meals/{meal_id}/ingredients/{ingredient_id}/decrease"
+    "/meals/{meal_id}/ingredients/{ingredient_id}/decrease", dependencies=[Depends(require_meal_owner)]
 )
 def decrease_quantity(
     meal_id: int,
@@ -124,7 +126,7 @@ def decrease_quantity(
 
 
 @router.delete(
-    "/meals/{meal_id}/ingredients/{ingredient_id}"
+    "/meals/{meal_id}/ingredients/{ingredient_id}", dependencies=[Depends(require_meal_owner)]
 )
 def delete_ingredient(meal_id: int, ingredient_id: int):
     ingredient = Ingredient(

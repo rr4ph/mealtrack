@@ -1,6 +1,8 @@
 import datetime
 from backend.database.connections import get_connection
 from backend.src.utils.enums import SupermarketType
+from backend.src.utils.ingredient_matching import best_ingredient_type_id
+from backend.src.utils.ingredient_type_methods import get_ingredient_types
 
 class Product():
     def __init__(self, 
@@ -42,6 +44,15 @@ class Product():
             last_price_update_at
             if last_price_update_at is not None
             else datetime.datetime.now()
+        )
+
+    def auto_assign_ingredient_type(self):
+        if self.ingredient_type_id is not None:
+            return
+
+        self.ingredient_type_id = best_ingredient_type_id(
+            {"name": self.name, "category": self.category or []},
+            get_ingredient_types(self.connection_choice)
         )
 
     def get_ingredient_type(self):
