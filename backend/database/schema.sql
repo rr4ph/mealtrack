@@ -1,5 +1,4 @@
 DROP TABLE if EXISTS meal_consumptions;
-DROP TABLE if EXISTS purchases;
 DROP TABLE if EXISTS ingredients;
 DROP TABLE if EXISTS meals;
 DROP TABLE if EXISTS inventory_items;
@@ -13,9 +12,7 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     postcode VARCHAR(10) NULL,
-    daily_calorie_goal INT NULL CHECK (daily_calorie_goal > 0),
-    spending_limit NUMERIC(10,2) NULL CHECK (spending_limit >= 0),
-    budget_reset_at TIMESTAMP NULL
+    daily_calorie_goal INT NULL CHECK (daily_calorie_goal > 0)
 );
 
 CREATE TABLE user_inventories (
@@ -28,6 +25,8 @@ CREATE TABLE ingredient_types (
     ingredient_type_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
 );
+
+CREATE UNIQUE INDEX ingredient_types_name_unique ON ingredient_types (LOWER(name));
 
 CREATE TABLE products (
     product_id SERIAL PRIMARY KEY,
@@ -78,19 +77,6 @@ CREATE TABLE ingredients (
     quantity_unit VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE purchases (
-    purchase_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL
-        REFERENCES users(user_id) ON DELETE CASCADE,
-    product_id INT NOT NULL
-        REFERENCES products(product_id),
-    quantity NUMERIC(10,3) NOT NULL CHECK (quantity > 0),
-    quantity_unit VARCHAR(5) NOT NULL,
-    price_paid NUMERIC(10,2) NOT NULL CHECK (price_paid >= 0),
-    currency CHAR(3) NOT NULL,
-    purchased_at TIMESTAMP NOT NULL DEFAULT now()
-);
-
 CREATE TABLE meal_consumptions (
     consumption_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL
@@ -103,5 +89,4 @@ CREATE TABLE meal_consumptions (
     consumed_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
-CREATE INDEX purchases_user_time ON purchases(user_id, purchased_at);
 CREATE INDEX meal_consumptions_user_time ON meal_consumptions(user_id, consumed_at);

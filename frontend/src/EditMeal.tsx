@@ -285,6 +285,7 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
                     <option value="kg">kg</option>
                     <option value="ml">ml</option>
                     <option value="l">l</option>
+                    <option value="pcs">pcs</option>
                   </select>
                   <button className="ingredient-remove ingredient-remove-text" onClick={() => removeIngredient(index)} type="button" aria-label="Remove ingredient" disabled={saving}>Remove</button>
                 </div>

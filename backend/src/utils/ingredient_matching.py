@@ -24,13 +24,19 @@ def best_ingredient_type_id(product, ingredient_types, threshold=MATCH_THRESHOLD
     """Return the id of the best-scoring ingredient type, or None if not confident.
 
     Words are stemmed so plurals match (tomato/tomatoes). A type only qualifies
-    if every word of its name closely matches a word in the product name.
+    if every word of its name closely matches a word in the product name or category.
+    Perfect category matches bypass the threshold.
     """
     product = {
         "name": _normalise(product["name"]),
         "category": [_normalise(c) for c in product.get("category") or []],
     }
     product_words = product["name"].split()
+    category_words = []
+    for category in product["category"]:
+        category_words.extend(category.split())
+    all_search_words = product_words + category_words
+    
     best_id = None
     best_score = 0
 
@@ -38,12 +44,18 @@ def best_ingredient_type_id(product, ingredient_types, threshold=MATCH_THRESHOLD
         candidate = {"name": _normalise(name)}
         words = candidate["name"].split()
         if not words or not all(
-            any(SequenceMatcher(None, w, p).ratio() >= TOKEN_SIMILARITY for p in product_words)
+            any(SequenceMatcher(None, w, p).ratio() >= TOKEN_SIMILARITY for p in all_search_words)
             for w in words
         ):
             continue
         score = association_score(product, candidate)
+        
+        from backend.src.utils.association_algorithms import category_match
+        category = category_match(product, candidate)
+        
         if score >= threshold and score > best_score:
+            best_id, best_score = ingredient_type_id, score
+        elif category == 1.0 and score > best_score:
             best_id, best_score = ingredient_type_id, score
 
     return best_id

@@ -1,8 +1,11 @@
 import datetime
+import logging
 from backend.database.connections import get_connection
 from backend.src.utils.enums import SupermarketType
 from backend.src.utils.ingredient_matching import best_ingredient_type_id
 from backend.src.utils.ingredient_type_methods import get_ingredient_types
+
+logger = logging.getLogger(__name__)
 
 class Product():
     def __init__(self, 
@@ -181,7 +184,8 @@ class Product():
                 self.promotions = product.promotions
                 self.category = product.category
                 self.last_price_update_at = datetime.datetime.now()
-
+                
+                self.auto_assign_ingredient_type()
                 self.save_product()
                 return True
 

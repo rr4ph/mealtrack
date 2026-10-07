@@ -1,7 +1,7 @@
 import { getUserId } from "./auth"
 import { useEffect, useState } from "react"
 import CreateInventoryItem from "./CreateInventoryItem"
-import BuyProduct from "./BuyProduct"
+import IngredientTypeSelect from "./IngredientTypeSelect"
 
 type InventoryItem = {
   product_id: number
@@ -19,6 +19,11 @@ type InventoryData = {
   items: InventoryItem[]
 }
 
+type IngredientType = {
+  ingredient_type_id: number
+  name: string
+}
+
 const API = "http://localhost:8000/api"
 
 function Inventory() {
@@ -30,17 +35,21 @@ function Inventory() {
   const [editQuantity, setEditQuantity] = useState("")
   const [editUnit, setEditUnit] = useState("unit")
   const [saving, setSaving] = useState(false)
-  const [buyingItem, setBuyingItem] = useState<InventoryItem | null>(null)
-  const [buyMessage, setBuyMessage] = useState("")
+  const [ingredientTypes, setIngredientTypes] = useState<IngredientType[]>([])
+  const [editingTypeId, setEditingTypeId] = useState<string>("")
 
   async function loadInventory() {
     setLoading(true)
     setError("")
 
     try {
-      const response = await fetch(`${API}/inventory?user_id=${getUserId()}`)
-      if (!response.ok) throw new Error()
-      setData(await response.json())
+      const [invResponse, typesResponse] = await Promise.all([
+        fetch(`${API}/inventory?user_id=${getUserId()}`),
+        fetch(`${API}/ingredient-types`)
+      ])
+      if (!invResponse.ok || !typesResponse.ok) throw new Error()
+      setData(await invResponse.json())
+      setIngredientTypes(await typesResponse.json())
     } catch {
       setError("Could not load your inventory.")
     } finally {
@@ -85,6 +94,7 @@ function Inventory() {
     setEditingId(item.product_id)
     setEditQuantity(String(item.quantity))
     setEditUnit(item.quantity_unit)
+    // Will load ingredient type if needed
     setError("")
   }
 
@@ -130,7 +140,21 @@ function Inventory() {
         }
       )
       if (!response.ok) throw new Error()
+      
+      if (editingTypeId && editingTypeId !== String(item.ingredient_type_name)) {
+        const typeResponse = await fetch(
+          `${API}/products/${item.product_id}/ingredient-type`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ingredient_type_id: Number(editingTypeId) || null }),
+          }
+        )
+        if (!typeResponse.ok) throw new Error()
+      }
+      
       setEditingId(null)
+      setEditingTypeId("")
       await loadInventory()
     } catch {
       setError(`Could not update ${item.name}.`)
@@ -201,7 +225,6 @@ function Inventory() {
         </section>
 
         {error && <p className="muted">{error}</p>}
-        {buyMessage && <p className="muted">{buyMessage}</p>}
 
         {data.items.length === 0 ? (
           <section className="panel empty-page">
@@ -244,6 +267,7 @@ function Inventory() {
                         <option value="kg">kg</option>
                         <option value="ml">ml</option>
                         <option value="l">l</option>
+                        <option value="pcs">pcs</option>
                       </select>
                       <button className="secondary-button" onClick={() => setEditingId(null)} disabled={saving}>
                         Cancel
@@ -252,7 +276,17 @@ function Inventory() {
                         {saving ? "Saving..." : "Save"}
                       </button>
                     </div>
-                    <span className="muted">Type: {item.ingredient_type_name ?? "Unclassified"}</span>
+                    <div className="form-group" style={{ marginTop: 12, marginBottom: 0 }}>
+                      <label>Ingredient type</label>
+                      <IngredientTypeSelect
+                        types={ingredientTypes}
+                        value={editingTypeId}
+                        onChange={setEditingTypeId}
+                        reloadTypes={() => loadInventory()}
+                        placeholder="No ingredient type"
+                        disabled={saving}
+                      />
+                    </div>
                   </div>
                 ) : (
                 <div className="inventory-item-controls">
@@ -278,11 +312,6 @@ function Inventory() {
                     <button className="link-button" onClick={() => startEdit(item)} aria-label={`Edit ${item.name}`}>
                       Edit
                     </button>
-                    {item.price !== null && (
-                      <button className="link-button" onClick={() => setBuyingItem(item)} aria-label={`Buy more ${item.name}`}>
-                        Buy more
-                      </button>
-                    )}
                     <button className="link-button danger" onClick={() => removeItem(item)} aria-label={`Remove ${item.name}`}>
                       Remove
                     </button>
@@ -294,23 +323,6 @@ function Inventory() {
           </section>
         )}
       </div>
-
-      {buyingItem && buyingItem.price !== null && (
-        <BuyProduct
-          product={{
-            product_id: buyingItem.product_id,
-            name: buyingItem.name,
-            price: buyingItem.price,
-            currency: buyingItem.currency ?? "GBP",
-          }}
-          onClose={() => setBuyingItem(null)}
-          onBought={(message) => {
-            setBuyingItem(null)
-            setBuyMessage(message)
-            loadInventory()
-          }}
-        />
-      )}
 
       {showCreateItem && (
         <CreateInventoryItem

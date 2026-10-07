@@ -13,6 +13,10 @@ def plan_consumption(cursor, meal_id, user_id, servings, lock=False):
     Pools stock the same way as the shortage logic: a product only counts when its
     stock converts to the ingredient's base unit. Several matching inventory
     products are consumed in product_id order.
+    
+    Allocation tracking: as each ingredient is processed, inventory is marked as
+    consumed. Later ingredients only see remaining stock.
+    
     Returns (lines, deductions) where deductions is [(product_id, new_quantity)].
     """
     cursor.execute(
@@ -40,6 +44,11 @@ def plan_consumption(cursor, meal_id, user_id, servings, lock=False):
     )
     stock = cursor.fetchall()
 
+    # Track remaining stock for each product after allocation
+    remaining_stock = {}
+    for s_type, product_id, product_name, s_qty, s_unit, pack in stock:
+        remaining_stock[product_id] = (product_name, float(s_qty), s_unit, pack)
+
     lines = []
     deductions = []
     for type_id, type_name, quantity, unit in ingredients:
@@ -49,9 +58,12 @@ def plan_consumption(cursor, meal_id, user_id, servings, lock=False):
         for s_type, product_id, product_name, s_qty, s_unit, pack in stock:
             if s_type != type_id:
                 continue
-            s_base, amount = stock_base_amount(s_qty, s_unit, pack)
+            if product_id not in remaining_stock:
+                continue
+            _, remaining_qty, s_unit, pack = remaining_stock[product_id]
+            s_base, amount = stock_base_amount(remaining_qty, s_unit, pack)
             if s_base == base and amount > 0:
-                candidates.append((product_id, product_name, float(s_qty), amount))
+                candidates.append((product_id, product_name, remaining_qty, amount))
 
         line = {
             "ingredient_type_id": type_id,
@@ -79,6 +91,7 @@ def plan_consumption(cursor, meal_id, user_id, servings, lock=False):
                 new_base = amount - take
                 new_qty = 0.0 if new_base < EPSILON else s_qty * new_base / amount
                 deductions.append((product_id, new_qty))
+                remaining_stock[product_id] = (product_name, new_qty, remaining_stock[product_id][2], remaining_stock[product_id][3])
                 used_parts.append({
                     "product_name": product_name,
                     "before": _round(amount / factor),

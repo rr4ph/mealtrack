@@ -59,7 +59,7 @@ def association_score(product, ingredient_type):
     category = category_match(product, ingredient_type)
 
     return (
-        exact * 0.4 
-        + fuzzy * 0.25
-        + category * 0.3
-    ) 
+        exact * 0.4
+        + fuzzy * 0.2
+        + category * 0.4
+    )

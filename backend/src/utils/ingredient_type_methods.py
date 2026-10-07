@@ -1,17 +1,19 @@
 from backend.database.connections import get_connection
 
 def create_ingredient_type(name, connection_choice=get_connection):
+    normalized_name = (name or "").strip()
     with connection_choice() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                """
-                INSERT INTO ingredient_types(name)
-                VALUES (%s) 
-                RETURNING ingredient_type_id
-                """,
-                (
-                    name,
-                )
+                "SELECT ingredient_type_id FROM ingredient_types WHERE LOWER(name) = LOWER(%s)",
+                (normalized_name,)
+            )
+            existing = cursor.fetchone()
+            if existing:
+                return existing[0]
+            cursor.execute(
+                "INSERT INTO ingredient_types(name) VALUES (%s) RETURNING ingredient_type_id",
+                (normalized_name,)
             )
             return cursor.fetchone()[0]
 

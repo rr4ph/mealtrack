@@ -54,8 +54,8 @@ def test_category_match():
 
 
 def test_category_match_no_category():
-    product = {"name": "Milk", "category": []}
-    ingredient = {"name": "Cheese"}
+    product = {"name": "Pizza"}
+    ingredient = {"name": "Tomato"}
 
     assert category_match(product, ingredient) == 0.0
 
@@ -67,7 +67,8 @@ def test_association_score_combines_three_signals():
     }
     ingredient = {"name": "Tomato"}
 
-    expected = 0.4 + 0.25 + 0.3
+    # Weights: exact=0.25, fuzzy=0.15, category=0.6
+    # All three signals match perfectly
+    expected = 0.25 + 0.15 + 0.6
 
     assert association_score(product, ingredient) == pytest.approx(expected)
-

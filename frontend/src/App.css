@@ -2008,12 +2008,6 @@
   white-space: nowrap;
 }
 
-.header-pill-spending {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
-  border-color: rgba(74, 222, 128, 0.4);
-}
-
 .header-pill-warning {
   color: #f87171;
   background: rgba(239, 68, 68, 0.1);

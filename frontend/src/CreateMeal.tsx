@@ -340,6 +340,7 @@ function CreateMeal({
                       <option value="kg">kg</option>
                       <option value="ml">ml</option>
                       <option value="l">l</option>
+                      <option value="pcs">pcs</option>
                     </select>
 
                     <button

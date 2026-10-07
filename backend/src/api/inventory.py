@@ -27,6 +27,7 @@ class InventoryListItemAPI(BaseModel):
     brand: str | None
     quantity: float
     quantity_unit: str
+    pack_size: str | None = None
     ingredient_type_id: int | None = None
     ingredient_type_name: str | None = None
     price: float | None = None
@@ -51,7 +52,7 @@ def get_user_inventory(user_id: int):
             cursor.execute(
                 """
                 SELECT p.product_id, p.name, p.brand, i.quantity, i.quantity_unit,
-                       p.ingredient_type_id, t.name, p.price, p.currency
+                       p.pack_size, p.ingredient_type_id, t.name, p.price, p.currency
                 FROM inventory_items i
                 JOIN products p ON p.product_id = i.product_id
                 LEFT JOIN ingredient_types t ON t.ingredient_type_id = p.ingredient_type_id
@@ -64,8 +65,9 @@ def get_user_inventory(user_id: int):
                 InventoryListItemAPI(
                     product_id=r[0], name=r[1], brand=r[2],
                     quantity=float(r[3]), quantity_unit=r[4],
-                    ingredient_type_id=r[5], ingredient_type_name=r[6],
-                    price=float(r[7]) if r[7] is not None else None, currency=r[8]
+                    pack_size=r[5],
+                    ingredient_type_id=r[6], ingredient_type_name=r[7],
+                    price=float(r[8]) if r[8] is not None else None, currency=r[9]
                 )
                 for r in cursor.fetchall()
             ]

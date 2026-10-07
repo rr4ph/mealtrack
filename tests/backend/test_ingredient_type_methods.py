@@ -18,6 +18,31 @@ def test_create_ingredient_type(db_connection):
             assert cursor.fetchone() == ("Cheese",)
 
 
+def test_create_ingredient_type_case_insensitive_reuse(db_connection):
+    id1 = create_ingredient_type("Balalam", db_connection)
+    id2 = create_ingredient_type("balalam", db_connection)
+    id3 = create_ingredient_type("BALALAM", db_connection)
+
+    assert id1 == id2 == id3
+
+    with db_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM ingredient_types WHERE LOWER(name) = LOWER(%s)", ("Balalam",))
+            assert cursor.fetchone()[0] == 1
+
+
+def test_create_ingredient_type_trims_whitespace(db_connection):
+    id1 = create_ingredient_type("  Cheese  ", db_connection)
+    id2 = create_ingredient_type("Cheese", db_connection)
+
+    assert id1 == id2
+
+    with db_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT name FROM ingredient_types WHERE ingredient_type_id = %s", (id1,))
+            assert cursor.fetchone()[0] == "Cheese"
+
+
 def test_merge_ingredient_types_updates_references(
     db_connection,
     test_user,

@@ -6,25 +6,16 @@ from pydantic import BaseModel
 from backend.database.connections import get_connection
 from backend.src.utils.auth import current_user_id, require_meal_owner
 from backend.src.utils.consumption import plan_consumption
-from backend.src.utils.shortages import convert_quantity
 
 router = APIRouter()
 
 
 class GoalsAPI(BaseModel):
     daily_calorie_goal: int | None = None
-    spending_limit: float | None = None
 
 
 class MealCaloriesUpdate(BaseModel):
     calories_per_serving: float | None = None
-
-
-class PurchaseCreate(BaseModel):
-    product_id: int
-    quantity: float
-    price_paid: float
-    purchased_at: datetime.datetime | None = None
 
 
 class ConsumeCreate(BaseModel):
@@ -37,40 +28,26 @@ def get_goals(user_id: int = Depends(current_user_id)):
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                "SELECT daily_calorie_goal, spending_limit FROM users WHERE user_id = %s",
+                "SELECT daily_calorie_goal FROM users WHERE user_id = %s",
                 (user_id,)
             )
             row = cursor.fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="User not found.")
-    return GoalsAPI(
-        daily_calorie_goal=row[0],
-        spending_limit=float(row[1]) if row[1] is not None else None
-    )
+    return GoalsAPI(daily_calorie_goal=row[0])
 
 
 @router.put("/goals", response_model=GoalsAPI)
 def update_goals(data: GoalsAPI, user_id: int = Depends(current_user_id)):
     if data.daily_calorie_goal is not None and not 500 <= data.daily_calorie_goal <= 10000:
         raise HTTPException(status_code=400, detail="Calorie goal must be between 500 and 10,000 kcal.")
-    if data.spending_limit is not None and not 0 <= data.spending_limit <= 100000:
-        raise HTTPException(status_code=400, detail="Spending limit must be between 0 and 100,000.")
-    limit = round(data.spending_limit, 2) if data.spending_limit is not None else None
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                "UPDATE users SET daily_calorie_goal = %s, spending_limit = %s WHERE user_id = %s",
-                (data.daily_calorie_goal, limit, user_id)
+                "UPDATE users SET daily_calorie_goal = %s WHERE user_id = %s",
+                (data.daily_calorie_goal, user_id)
             )
-    return GoalsAPI(daily_calorie_goal=data.daily_calorie_goal, spending_limit=limit)
-
-
-@router.delete("/goals/spending-limit")
-def reset_spending_limit(user_id: int = Depends(current_user_id)):
-    with get_connection() as connection:
-        with connection.cursor() as cursor:
-            cursor.execute("UPDATE users SET spending_limit = NULL, budget_reset_at = now() WHERE user_id = %s", (user_id,))
-    return {"spending_limit": None}
+    return GoalsAPI(daily_calorie_goal=data.daily_calorie_goal)
 
 
 @router.delete("/consumptions/today")
@@ -156,53 +133,6 @@ def consume_meal(meal_id: int, data: ConsumeCreate, user_id: int = Depends(curre
     }
 
 
-@router.post("/purchases")
-def create_purchase(data: PurchaseCreate, user_id: int = Depends(current_user_id)):
-    if data.quantity <= 0:
-        raise HTTPException(status_code=400, detail="Quantity must be greater than zero.")
-    if not 0 <= data.price_paid <= 100000:
-        raise HTTPException(status_code=400, detail="Price paid must be a non-negative amount.")
-    with get_connection() as connection:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT currency, pack_size FROM products WHERE product_id = %s", (data.product_id,))
-            product = cursor.fetchone()
-            if product is None:
-                raise HTTPException(status_code=404, detail="Product not found.")
-            cursor.execute("SELECT inventory_id FROM user_inventories WHERE user_id = %s", (user_id,))
-            inventory_id = cursor.fetchone()[0]
-            cursor.execute(
-                "SELECT quantity_unit FROM inventory_items WHERE inventory_id = %s AND product_id = %s FOR UPDATE",
-                (inventory_id, data.product_id)
-            )
-            existing = cursor.fetchone()
-            if existing is None:
-                cursor.execute(
-                    "INSERT INTO inventory_items(inventory_id, product_id, quantity, quantity_unit) VALUES (%s,%s,%s,'unit')",
-                    (inventory_id, data.product_id, data.quantity)
-                )
-            else:
-                add = convert_quantity(data.quantity, "unit", existing[0], product[1])
-                if add is None:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Can't add packs to your stock recorded in {existing[0]}. Edit that item's unit first."
-                    )
-                cursor.execute(
-                    "UPDATE inventory_items SET quantity = quantity + %s WHERE inventory_id = %s AND product_id = %s",
-                    (add, inventory_id, data.product_id)
-                )
-            cursor.execute(
-                """
-                INSERT INTO purchases(user_id, product_id, quantity, quantity_unit, price_paid, currency, purchased_at)
-                VALUES (%s, %s, %s, 'unit', %s, %s, COALESCE(%s, now()))
-                RETURNING purchase_id
-                """,
-                (user_id, data.product_id, data.quantity, round(data.price_paid, 2), product[0], data.purchased_at)
-            )
-            purchase_id = cursor.fetchone()[0]
-    return {"purchase_id": purchase_id, "message": "Purchase recorded."}
-
-
 _RANGES = {
     "daily": ("day", 7),
     "weekly": ("week", 4),
@@ -210,7 +140,6 @@ _RANGES = {
 }
 _SOURCES = {
     "calories": ("meal_consumptions", "consumed_at", "calories"),
-    "spending": ("purchases", "purchased_at", "price_paid"),
 }
 
 
@@ -274,34 +203,20 @@ def get_stats(
             )
             sums = {row[0]: float(row[1]) for row in cursor.fetchall()}
 
-            month_start = today.replace(day=1)
             cursor.execute(
                 f"SELECT COALESCE(SUM({value_col}), 0) FROM {table} WHERE user_id = %s AND {time_col} >= %s",
-                (user_id, today if metric == "calories" else month_start)
+                (user_id, today)
             )
             period_total = float(cursor.fetchone()[0])
-            cursor.execute(
-                "SELECT daily_calorie_goal, spending_limit FROM users WHERE user_id = %s", (user_id,)
-            )
+            cursor.execute("SELECT daily_calorie_goal FROM users WHERE user_id = %s", (user_id,))
             goals = cursor.fetchone()
-            budget_spent = 0.0
-            if metric == "spending":
-                cursor.execute(
-                    """
-                    SELECT COALESCE(SUM(pu.price_paid), 0) FROM purchases pu, users u
-                    WHERE u.user_id = %s AND pu.user_id = u.user_id
-                      AND pu.purchased_at >= GREATEST(%s::timestamp, COALESCE(u.budget_reset_at, %s::timestamp))
-                    """,
-                    (user_id, month_start, month_start)
-                )
-                budget_spent = float(cursor.fetchone()[0])
 
     points = []
     start = first
     for _ in range(count):
         total = sums.get(start, 0.0)
         value = total
-        if metric == "calories" and unit != "day":
+        if unit != "day":
             days = (min(_next(start, unit), today + datetime.timedelta(days=1)) - start).days
             value = total / max(days, 1)
         points.append({
@@ -312,19 +227,10 @@ def get_stats(
         })
         start = _next(start, unit)
 
-    if metric == "calories":
-        goal = goals[0]
-        return {
-            "metric": metric, "range": time_range, "points": points,
-            "goal": goal, "today": round(period_total, 2),
-            "average_per_day": unit != "day",
-        }
-    limit = float(goals[1]) if goals[1] is not None else None
     return {
         "metric": metric, "range": time_range, "points": points,
-        "limit": limit, "spent": round(period_total, 2),
-        "budget_spent": round(budget_spent, 2),
-        "remaining": round(limit - budget_spent, 2) if limit is not None else None,
+        "goal": goals[0], "today": round(period_total, 2),
+        "average_per_day": unit != "day",
     }
 
 
@@ -341,29 +247,15 @@ def get_activity(
         with connection.cursor() as cursor:
             cursor.execute("SELECT current_date")
             start = _bucket_start(cursor.fetchone()[0], unit)
-            if metric == "calories":
-                cursor.execute(
-                    """
-                    SELECT consumption_id, meal_name, calories, consumed_at
-                    FROM meal_consumptions WHERE user_id = %s AND consumed_at >= %s
-                    ORDER BY consumed_at DESC LIMIT 100
-                    """,
-                    (user_id, start)
-                )
-                return [
-                    {"id": r[0], "name": r[1], "amount": float(r[2]), "at": r[3].isoformat(), "detail": None}
-                    for r in cursor.fetchall()
-                ]
             cursor.execute(
                 """
-                SELECT pu.purchase_id, p.name, pu.price_paid, pu.purchased_at, p.supermarket
-                FROM purchases pu JOIN products p ON p.product_id = pu.product_id
-                WHERE pu.user_id = %s AND pu.purchased_at >= %s
-                ORDER BY pu.purchased_at DESC LIMIT 100
+                SELECT consumption_id, meal_name, calories, consumed_at
+                FROM meal_consumptions WHERE user_id = %s AND consumed_at >= %s
+                ORDER BY consumed_at DESC LIMIT 100
                 """,
                 (user_id, start)
             )
             return [
-                {"id": r[0], "name": r[1], "amount": float(r[2]), "at": r[3].isoformat(), "detail": r[4]}
+                {"id": r[0], "name": r[1], "amount": float(r[2]), "at": r[3].isoformat(), "detail": None}
                 for r in cursor.fetchall()
             ]
