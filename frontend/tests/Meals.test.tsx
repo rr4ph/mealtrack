@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import Meals from "../src/Meals"
 import { mockFetchOnce } from "./test-utils"
 
@@ -56,7 +57,7 @@ describe("Meals", () => {
     render(<Meals />)
 
     await waitFor(() => {
-      expect(screen.getByText("No meals yet.")).toBeInTheDocument()
+      expect(screen.getByText("No meals yet")).toBeInTheDocument()
     })
   })
 
@@ -68,6 +69,42 @@ describe("Meals", () => {
     await waitFor(() => {
       expect(screen.getByText("Could not load your meals.")).toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument()
+    })
+  })
+
+  it("retries loading meals when Try again is clicked", async () => {
+    const user = userEvent.setup()
+    mockFetchOnce(/\/api\/meals/, { detail: "Error" }, 500)
+    mockFetchOnce(/\/api\/meals/, [])
+
+    render(<Meals />)
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+
+    await waitFor(() => {
+      expect(screen.getByText("No meals yet")).toBeInTheDocument()
+    })
+  })
+
+  it("opens create meal modal when add meal button is clicked", async () => {
+    const user = userEvent.setup()
+    mockFetchOnce(/\/api\/meals/, [])
+    mockFetchOnce(/\/api\/ingredient-types/, [])
+
+    render(<Meals />)
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "+ Add meal" })).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole("button", { name: "+ Add meal" }))
+
+    await waitFor(() => {
+      expect(screen.getByText("Meal name")).toBeInTheDocument()
     })
   })
 })

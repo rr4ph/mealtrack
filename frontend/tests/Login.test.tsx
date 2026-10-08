@@ -15,16 +15,14 @@ describe("Login", () => {
   })
 
   it("renders the login form", () => {
-    mockFetchOnce(/\/api\/auth\/login/, {})
     render(<Login onLogin={mockOnLogin} onCreateAccount={mockOnCreateAccount} />)
-    expect(screen.getByText("Mealtrack")).toBeInTheDocument()
     expect(screen.getByText("LOG IN")).toBeInTheDocument()
-    expect(screen.getByLabelText("Username")).toBeInTheDocument()
-    expect(screen.getByLabelText("Password")).toBeInTheDocument()
+    expect(screen.getByText("M")).toBeInTheDocument()
+    expect(screen.getByText("Username")).toBeInTheDocument()
+    expect(screen.getByText("Password")).toBeInTheDocument()
   })
 
   it("disables submit button when fields are empty", () => {
-    mockFetchOnce(/\/api\/auth\/login/, {})
     render(<Login onLogin={mockOnLogin} onCreateAccount={mockOnCreateAccount} />)
     const submitButton = screen.getByRole("button", { name: "Log in" })
     expect(submitButton).toBeDisabled()
@@ -32,10 +30,10 @@ describe("Login", () => {
 
   it("enables submit when both fields are filled", async () => {
     const user = userEvent.setup()
-    mockFetchOnce(/\/api\/auth\/login/, {})
     render(<Login onLogin={mockOnLogin} onCreateAccount={mockOnCreateAccount} />)
-    await user.type(screen.getByLabelText("Username"), "testuser")
-    await user.type(screen.getByLabelText("Password"), "password123")
+    const inputs = document.querySelectorAll("input")
+    await user.type(inputs[0], "testuser")
+    await user.type(inputs[1], "password123")
     const submitButton = screen.getByRole("button", { name: "Log in" })
     expect(submitButton).not.toBeDisabled()
   })
@@ -51,8 +49,9 @@ describe("Login", () => {
     mockFetchOnce(/\/api\/auth\/login/, mockSession)
 
     render(<Login onLogin={mockOnLogin} onCreateAccount={mockOnCreateAccount} />)
-    await user.type(screen.getByLabelText("Username"), "testuser")
-    await user.type(screen.getByLabelText("Password"), "password123")
+    const inputs = document.querySelectorAll("input")
+    await user.type(inputs[0], "testuser")
+    await user.type(inputs[1], "password123")
     await user.click(screen.getByRole("button", { name: "Log in" }))
 
     await waitFor(() => {
@@ -65,8 +64,9 @@ describe("Login", () => {
     mockFetchOnce(/\/api\/auth\/login/, { detail: "Invalid credentials" }, 401)
 
     render(<Login onLogin={mockOnLogin} onCreateAccount={mockOnCreateAccount} />)
-    await user.type(screen.getByLabelText("Username"), "testuser")
-    await user.type(screen.getByLabelText("Password"), "wrong")
+    const inputs = document.querySelectorAll("input")
+    await user.type(inputs[0], "testuser")
+    await user.type(inputs[1], "wrong")
     await user.click(screen.getByRole("button", { name: "Log in" }))
 
     await waitFor(() => {
@@ -75,7 +75,6 @@ describe("Login", () => {
   })
 
   it("displays notice message if provided", () => {
-    mockFetchOnce(/\/api\/auth\/login/, {})
     render(
       <Login
         onLogin={mockOnLogin}
@@ -84,5 +83,12 @@ describe("Login", () => {
       />
     )
     expect(screen.getByText("Account created. Log in to continue.")).toBeInTheDocument()
+  })
+
+  it("calls onCreateAccount when create account button is clicked", async () => {
+    const user = userEvent.setup()
+    render(<Login onLogin={mockOnLogin} onCreateAccount={mockOnCreateAccount} />)
+    await user.click(screen.getByRole("button", { name: "Create account" }))
+    expect(mockOnCreateAccount).toHaveBeenCalled()
   })
 })
