@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import CreateMeal from "./CreateMeal"
 import MealDetails from "./MealDetails"
 
+import { API_URL } from "./config"
 type Meal = {
   meal_id: number
   user_id: number
@@ -25,7 +26,7 @@ function Meals() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/meals?user_id=${getUserId()}`
+        `${API_URL}/api/meals?user_id=${getUserId()}`
       )
 
       if (!response.ok) {

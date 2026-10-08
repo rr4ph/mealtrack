@@ -1,6 +1,7 @@
-from dotenv import load_dotenv
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -17,9 +18,13 @@ from backend.src.api.tracking import router as tracking_router
 
 app = FastAPI()
 
+# Get allowed origins from environment, fallback to localhost for development
+allowed_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",")
+allowed_origins = [origin.strip() for origin in allowed_origins]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"]
 )

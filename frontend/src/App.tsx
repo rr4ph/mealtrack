@@ -10,6 +10,7 @@ import Inventory from "./Inventory"
 import Products from "./Products"
 import StatusPills from "./StatusPills"
 
+import { API_URL } from "./config"
 type NavItem = {
   label: string
   icon: string
@@ -38,7 +39,7 @@ function App() {
 
   useEffect(() => {
     if (!session) return
-    fetch("http://localhost:8000/api/auth/me", {
+    fetch(`${API_URL}/api/auth/me`, {
       headers: { Authorization: `Bearer ${session.token}` },
     })
       .then((r) => {

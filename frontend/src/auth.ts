@@ -1,3 +1,5 @@
+import { API_URL } from "./config"
+
 export type Session = {
   user_id: number
   username: string
@@ -32,7 +34,7 @@ const nativeFetch = window.fetch.bind(window)
 window.fetch = (input, init) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
   const token = getSession()?.token
-  if (token && url.startsWith("http://localhost:8000/api/")) {
+  if (token && url.startsWith(`${API_URL}/api/`)) {
     const headers = new Headers(init?.headers)
     if (!headers.has("Authorization")) headers.set("Authorization", `Bearer ${token}`)
     return nativeFetch(input, { ...init, headers })

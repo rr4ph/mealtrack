@@ -3,7 +3,8 @@ import { type IngredientType } from "./IngredientTypeSelect"
 import CreateInventoryItem from "./CreateInventoryItem"
 import { getUserId } from "./auth"
 
-const API = "http://localhost:8000/api"
+import { API_URL } from "./config"
+const API = `${API_URL}/api`
 
 type Product = {
   product_id: number

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react"
 import { saveSession, type Session } from "./auth"
 
+import { API_URL } from "./config"
 type LoginProps = {
   onLogin: (session: Session) => void
   onCreateAccount: () => void
@@ -19,7 +20,7 @@ function Login({ onLogin, onCreateAccount, notice }: LoginProps) {
     setError("")
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.trim(), password }),

@@ -2,6 +2,7 @@ import { getUserId } from "./auth"
 import { useEffect, useState } from "react"
 import IngredientTypeSelect from "./IngredientTypeSelect"
 
+import { API_URL } from "./config"
 type IngredientType = {
   ingredient_type_id: number
   name: string
@@ -41,7 +42,7 @@ function CreateMeal({
     async function loadIngredientTypes() {
       try {
         const response = await fetch(
-          "http://localhost:8000/api/ingredient-types"
+          `${API_URL}/api/ingredient-types`
         )
 
         if (!response.ok) {
@@ -126,7 +127,7 @@ function CreateMeal({
 
     try {
       const mealResponse = await fetch(
-        "http://localhost:8000/api/meals",
+        `${API_URL}/api/meals`,
         {
           method: "POST",
           headers: {
@@ -149,7 +150,7 @@ function CreateMeal({
 
       for (const ingredient of ingredients) {
         const ingredientResponse = await fetch(
-          `http://localhost:8000/api/meals/${meal.meal_id}/ingredients`,
+          `${API_URL}/api/meals/${meal.meal_id}/ingredients`,
           {
             method: "POST",
             headers: {

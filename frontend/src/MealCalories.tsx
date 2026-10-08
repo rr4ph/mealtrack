@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { DATA_CHANGED_EVENT } from "./StatusPills"
 
-const API = "http://localhost:8000/api"
+import { API_URL } from "./config"
+const API = `${API_URL}/api`
 
 function localInputValue(date: Date) {
   const pad = (n: number) => String(n).padStart(2, "0")

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import CreateInventoryItem from "./CreateInventoryItem"
 import IngredientTypeSelect from "./IngredientTypeSelect"
 
+import { API_URL } from "./config"
 type InventoryItem = {
   product_id: number
   name: string
@@ -24,7 +25,7 @@ type IngredientType = {
   name: string
 }
 
-const API = "http://localhost:8000/api"
+const API = `${API_URL}/api`
 
 function Inventory() {
   const [data, setData] = useState<InventoryData | null>(null)

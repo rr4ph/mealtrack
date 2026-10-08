@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
-const API = "http://localhost:8000/api"
+import { API_URL } from "./config"
+const API = `${API_URL}/api`
 
 type Range = "daily" | "weekly" | "monthly"
 

@@ -2,6 +2,7 @@ import { getUserId } from "./auth"
 import { useEffect, useState } from "react"
 import IngredientTypeSelect from "./IngredientTypeSelect"
 
+import { API_URL } from "./config"
 type Meal = {
   meal_id: number
   user_id: number
@@ -48,7 +49,7 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
   const [error, setError] = useState("")
 
   async function loadIngredientTypes() {
-    const response = await fetch("http://localhost:8000/api/ingredient-types")
+    const response = await fetch(`${API_URL}/api/ingredient-types`)
     if (!response.ok) throw new Error("Could not reload ingredient types.")
     setIngredientTypes(await response.json())
   }
@@ -60,8 +61,8 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
 
       try {
         const [ingredientsResponse, typesResponse] = await Promise.all([
-          fetch(`http://localhost:8000/api/meals/${meal.meal_id}/ingredients?user_id=${getUserId()}`),
-          fetch("http://localhost:8000/api/ingredient-types"),
+          fetch(`${API_URL}/api/meals/${meal.meal_id}/ingredients?user_id=${getUserId()}`),
+          fetch(`${API_URL}/api/ingredient-types`),
         ])
 
         if (!ingredientsResponse.ok || !typesResponse.ok) {
@@ -118,7 +119,7 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
       setSaving(true)
       try {
         const response = await fetch(
-          `http://localhost:8000/api/meals/${meal.meal_id}/ingredients/${target.ingredient_id}`,
+          `${API_URL}/api/meals/${meal.meal_id}/ingredients/${target.ingredient_id}`,
           { method: "DELETE" }
         )
         if (!response.ok) throw new Error()
@@ -161,7 +162,7 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
     setSaving(true)
 
     try {
-      const mealResponse = await fetch(`http://localhost:8000/api/meals/${meal.meal_id}`, {
+      const mealResponse = await fetch(`${API_URL}/api/meals/${meal.meal_id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -183,7 +184,7 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
       for (const ingredient of originalIngredients) {
         if (!remainingIngredientIds.has(ingredient.ingredient_id)) {
           const response = await fetch(
-            `http://localhost:8000/api/meals/${meal.meal_id}/ingredients/${ingredient.ingredient_id}`,
+            `${API_URL}/api/meals/${meal.meal_id}/ingredients/${ingredient.ingredient_id}`,
             { method: "DELETE" }
           )
 
@@ -200,8 +201,8 @@ function EditMeal({ meal, onClose, onUpdated }: EditMealProps) {
           quantity_unit: ingredient.quantity_unit,
         })
         const url = ingredient.ingredient_id
-          ? `http://localhost:8000/api/meals/${meal.meal_id}/ingredients/${ingredient.ingredient_id}`
-          : `http://localhost:8000/api/meals/${meal.meal_id}/ingredients`
+          ? `${API_URL}/api/meals/${meal.meal_id}/ingredients/${ingredient.ingredient_id}`
+          : `${API_URL}/api/meals/${meal.meal_id}/ingredients`
         const response = await fetch(url, {
           method: ingredient.ingredient_id ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },

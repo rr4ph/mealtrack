@@ -6,6 +6,7 @@ import markerIcon from "leaflet/dist/images/marker-icon.png"
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
 import markerShadow from "leaflet/dist/images/marker-shadow.png"
 
+import { API_URL } from "./config"
 L.Marker.prototype.options.icon = L.icon({
   iconUrl: markerIcon,
   iconRetinaUrl: markerIcon2x,
@@ -67,7 +68,7 @@ function Shops() {
     const fetchShops = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`http://localhost:8000/api/shops?user_id=${getUserId()}`)
+        const response = await fetch(`${API_URL}/api/shops?user_id=${getUserId()}`)
         if (!response.ok) {
           const data = await response.json()
           setError(data.detail || "Could not load shops.")

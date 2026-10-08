@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react"
 
+import { API_URL } from "./config"
 type RegisterProps = {
   onRegistered: () => void
   onCancel: () => void
@@ -22,7 +23,7 @@ function Register({ onRegistered, onCancel }: RegisterProps) {
     }
     setLoading(true)
     try {
-      const response = await fetch("http://localhost:8000/api/users", {
+      const response = await fetch(`${API_URL}/api/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

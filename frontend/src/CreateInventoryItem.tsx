@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import IngredientTypeSelect, { type IngredientType } from "./IngredientTypeSelect"
 
-const API = "http://localhost:8000/api"
+import { API_URL } from "./config"
+const API = `${API_URL}/api`
 
 export type Product = {
   product_id: number

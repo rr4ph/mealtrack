@@ -2,7 +2,8 @@ import { useEffect, useState, type FormEvent } from "react"
 import { saveSession, type Session } from "./auth"
 import { DATA_CHANGED_EVENT } from "./StatusPills"
 
-const API = "http://localhost:8000/api"
+import { API_URL } from "./config"
+const API = `${API_URL}/api`
 
 type AccountProps = {
   session: Session

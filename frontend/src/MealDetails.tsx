@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import EditMeal from "./EditMeal"
 import MealCalories from "./MealCalories"
 
+import { API_URL } from "./config"
 type Meal = {
   meal_id: number
   user_id: number
@@ -57,10 +58,10 @@ function MealDetails({
         const [ingredientsResponse, typesResponse] =
           await Promise.all([
             fetch(
-              `http://localhost:8000/api/meals/${meal.meal_id}/ingredients?user_id=${getUserId()}`
+              `${API_URL}/api/meals/${meal.meal_id}/ingredients?user_id=${getUserId()}`
             ),
             fetch(
-              "http://localhost:8000/api/ingredient-types"
+              `${API_URL}/api/ingredient-types`
             ),
           ])
 
@@ -106,7 +107,7 @@ function MealDetails({
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/meals/${meal.meal_id}?user_id=${getUserId()}`,
+        `${API_URL}/api/meals/${meal.meal_id}?user_id=${getUserId()}`,
         { method: "DELETE" }
       )
 

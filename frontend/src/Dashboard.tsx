@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import Shops from "./Shops"
 import AnalyticsCard from "./AnalyticsCard"
 
+import { API_URL } from "./config"
 type Shortage = {
   meal_id: number
   meal_name: string
@@ -30,15 +31,15 @@ function Dashboard({ onNavigate }: DashboardProps) {
   const [shortagesError, setShortagesError] = useState(false)
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/inventory?user_id=${getUserId()}`)
+    fetch(`${API_URL}/api/inventory?user_id=${getUserId()}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setInventoryCount(d.items.length))
       .catch(() => setInventoryCount(null))
-    fetch(`http://localhost:8000/api/meals?user_id=${getUserId()}`)
+    fetch(`${API_URL}/api/meals?user_id=${getUserId()}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setMealCount(d.length))
       .catch(() => setMealCount(null))
-    fetch(`http://localhost:8000/api/shortages?user_id=${getUserId()}`)
+    fetch(`${API_URL}/api/shortages?user_id=${getUserId()}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: Shortage[]) => setShortages(d))
       .catch(() => setShortagesError(true))

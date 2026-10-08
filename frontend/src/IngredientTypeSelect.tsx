@@ -1,7 +1,8 @@
 import { useState } from "react"
 
+import { API_URL } from "./config"
 const NEW_OPTION = "__new__"
-const API = "http://localhost:8000/api"
+const API = `${API_URL}/api`
 
 export type IngredientType = {
   ingredient_type_id: number
