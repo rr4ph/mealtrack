@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -12,7 +10,9 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - mealtrack_postgres_data:/var/lib/postgresql/data
-      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./backend/database/apply-schema.sh:/docker-entrypoint-initdb.d/02-apply-schema.sh
+      - ./backend/database/schema.sql:/schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 10s
